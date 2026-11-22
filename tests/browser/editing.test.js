@@ -105,7 +105,8 @@ describe('editing', () => {
   });
 
   test('darkening a floor plan picture from the floor plan step', async () => {
-    const page = await harness(env, '?site=example-house');
+    // Day to start with, whatever the sun is doing where the test runs.
+    const page = await harness(env, '?site=example-house', { storage: { 'pvd:example-house:night': 'day' } });
     // The filter eases in, so wait for it to settle on the expected brightness.
     const brightness = (b) => page.waitForFunction((v) => {
       const n = document.querySelector('.fp[data-plan="house"] .fp-picture');
@@ -114,6 +115,7 @@ describe('editing', () => {
     await page.locator('.ov-bld[aria-label*="House"]').click();
     // Lamps stand out against a picture darkened a little by default, and more in the evening.
     await brightness('0.85');
+    await page.locator('.top-actions .chip', { hasText: /^Day/ }).click(); // day → auto
     await page.locator('.top-actions .chip', { hasText: /Auto/ }).click(); // auto → night
     await brightness('0.425');
 
