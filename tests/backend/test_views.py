@@ -203,8 +203,10 @@ class SitesViewTest(unittest.TestCase):
         self.assertEqual(self.config.read_text(), '{"floorplans": []}\n')
 
     def test_config_must_be_json_object(self):
-        for body in (b"not json", b"[1, 2]", b'{"floorplans": "x"}'):
-            with self.subTest(body=body):
+        too_deep = b'{"floorplans": [], "x": ' + b"[" * 100 + b"]" * 100 + b"}"
+        beyond_python = b'{"floorplans": [], "x": ' + b"[" * 100000 + b"]" * 100000 + b"}"
+        for body in (b"not json", b"[1, 2]", b'{"floorplans": "x"}', too_deep, beyond_python):
+            with self.subTest(body=body[:40]):
                 self.assertEqual(self.put("site.json", body).status, 400)
 
     def test_malformed_config_is_refused_with_a_reason(self):

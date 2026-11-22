@@ -8,7 +8,6 @@ they often name the home or the family.
 
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
 from typing import Any
@@ -19,6 +18,7 @@ from homeassistant.const import __version__ as HA_VERSION
 from homeassistant.core import HomeAssistant
 
 from .const import CONF_SITE, DOMAIN, KEEP_VERSIONS, MAX_SITE_JSON
+from .views import load_json
 
 TO_REDACT = {"title", "site", "url_path", "name"}
 ENTITY = re.compile(r"^[a-z_]+\.[a-z0-9_]+$")
@@ -72,7 +72,7 @@ def _site_summary(sites_dir: Path, site_id: str | None) -> dict[str, Any]:
         out["site_json"] = "too large"
         return out
     try:
-        config = json.loads(path.read_text(encoding="utf-8"))
+        config = load_json(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         out["site_json"] = "not valid JSON"
         return out

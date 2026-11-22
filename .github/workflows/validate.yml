@@ -103,3 +103,20 @@ jobs:
       - run: pip install -r ${{ matrix.requirements }}
       - run: pytest tests/ha
 
+
+  home-assistant-2026-11:
+    # Home Assistant 2026.11, which the test plugin behind tests/ha does not support yet
+    # (it replaced httpx and voluptuous underneath). tests/ha/check_newest.py starts it
+    # without the plugin. When the plugin catches up, raise tests/ha/requirements.txt
+    # and drop this job.
+    name: Home Assistant 2026.11
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: tests/ha/requirements-newest-ha.txt
+      - run: pip install -r tests/ha/requirements-newest-ha.txt
+      - run: python -I tests/ha/check_newest.py

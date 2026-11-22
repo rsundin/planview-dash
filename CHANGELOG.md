@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.42
+
+Last cleanups before the 1.0 beta (roadmap V5).
+
+- **Tested on Home Assistant 2026.11**, the version the Marketplace came with. A new check in CI starts Home Assistant 2026.11.2 with PlanView Dash set up from YAML and checks the panel, logins, saving as administrator and refusal for everyone else, with no errors or blocking calls from PlanView Dash. The full test suite stays on 2026.10.4 until its test tool supports 2026.11. The oldest supported version stays 2025.6
+- **Security pass** over everything that writes (saving, pictures, import, restore points) against [SECURITY.md](SECURITY.md). One fix: a `site.json` nested far deeper than any real dashboard (in a save, an import, a restore point or diagnostics) is now refused as broken JSON instead of failing with a server error. SECURITY.md now says plainly that *Only for administrators* hides a dashboard's panel, while its site files stay readable for every logged-in user
+- Restart Home Assistant after updating
+
 ## 0.8.41
 
 Darkening the floor plan picture makes a clear difference, also in the evening.

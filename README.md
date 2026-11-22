@@ -99,7 +99,7 @@ New versions are offered with your other updates in Home Assistant, like for any
 - **Your dashboard keeps working.** A `site.json` saved by any 1.x version opens in every later 1.x version, and is upgraded by itself when the format grows. Nothing you set up has to be redone.
 - **Names stay.** The domain `planview_dash`, the `configuration.yaml` keys, the card `custom:planview-dash-card` and its options, the action `planview_dash.goodnight` and its fields, the sensor `sensor.<site>_goodnight` and the dashboard addresses do not change in 1.x. The full list: [Stable in 1.x](docs/configuration.md#stable-in-1x).
 - **Breaking changes wait for 2.0**, are announced one minor release ahead in the changelog and in Home Assistant's repairs, and come with an automatic migration where one is possible.
-- **Supported Home Assistant versions** are the ones the tests run on: the newest, and the oldest named in `hacs.json`, now 2025.6. Raising the oldest is announced in the changelog.
+- **Supported Home Assistant versions** are the ones the tests run on: the newest, and the oldest named in `hacs.json`, now 2025.6 (the newest is 2026.11). Raising the oldest is announced in the changelog.
 - **Version numbers** follow [SemVer](https://semver.org) from 1.0: 1.0.1 fixes, 1.1.0 features, 2.0.0 breaking changes.
 
 ## Development

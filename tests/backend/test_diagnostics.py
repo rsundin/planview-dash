@@ -92,6 +92,8 @@ class DiagnosticsTest(unittest.TestCase):
     def test_missing_or_broken_site(self):
         (self.sites / "sundins-hus" / "site.json").write_text("{ not json", encoding="utf-8")
         self.assertEqual(self.run_diag([])["site"]["site_json"], "not valid JSON")
+        (self.sites / "sundins-hus" / "site.json").write_text("[" * 100000 + "]" * 100000, encoding="utf-8")
+        self.assertEqual(self.run_diag([])["site"]["site_json"], "not valid JSON")
         out = self.run_diag([], data={"site": "nowhere", "title": "x"})
         self.assertEqual(out["site"], {"folder_exists": False, "missing_entities": 0})
 

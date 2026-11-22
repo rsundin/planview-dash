@@ -2,5 +2,7 @@
 # The plugin pins one Home Assistant version per release: 0.13.375 is Home Assistant
 # 2026.10.4. Raise both lines together (the frontend version is the one in
 # homeassistant/components/frontend/manifest.json of that release).
+# Home Assistant 2026.11 has no plugin release yet (it replaced httpx and voluptuous
+# underneath); until it does, CI checks 2026.11 with tests/ha/check_newest.py.
 pytest-homeassistant-custom-component==0.13.375
 home-assistant-frontend==20260930.5
