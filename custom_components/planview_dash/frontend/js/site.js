@@ -127,7 +127,7 @@ export const planPicture = (plan) => (plan?.image ? (typeof plan.image === 'stri
 
 // How much a floor plan's picture is darkened so lit lamps stand out: image.dim, 0 (not at
 // all) to 0.8. Evening halves what is left (style.css, .fp-picture).
-export const PICTURE_DIM = 0.15;
+export const PICTURE_DIM = 0.25;
 export const pictureDim = (plan) => {
   const d = typeof plan?.image === 'object' ? plan.image?.dim : undefined;
   return typeof d === 'number' && Number.isFinite(d) ? Math.min(0.8, Math.max(0, d)) : PICTURE_DIM;

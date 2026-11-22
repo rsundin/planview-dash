@@ -113,26 +113,26 @@ describe('editing', () => {
     }, b);
     await page.locator('.ov-bld[aria-label*="House"]').click();
     // Lamps stand out against a picture darkened a little by default, and more in the evening.
-    await brightness('0.85');
+    await brightness('0.75');
     await page.locator('.top-actions .chip', { hasText: /Auto/ }).click(); // auto → night
-    await brightness('0.425');
+    await brightness('0.375');
 
     await page.locator('.top-actions .chip', { hasText: 'Setup' }).click();
     await page.locator('.setup-step', { hasText: 'Floor plans' }).click();
     const housePlan = page.locator('.setup-section', { has: page.locator('h3', { hasText: /^House$/ }) });
     const pick = housePlan.getByLabel('Darken the picture');
-    assert.equal(await pick.inputValue(), '0.15', 'the standard level');
+    assert.equal(await pick.inputValue(), '0.25', 'the standard level');
     await pick.selectOption({ label: 'A lot' });
-    assert.equal(await housePlan.locator('.setup-plan-thumb').evaluate((n) => getComputedStyle(n).filter), 'brightness(0.55)', 'the thumbnail shows it');
+    assert.equal(await housePlan.locator('.setup-plan-thumb').evaluate((n) => getComputedStyle(n).filter), 'brightness(0.35)', 'the thumbnail shows it');
 
     await page.locator('.setup-head .chip', { hasText: 'Save' }).click();
     await page.waitForFunction(() => window.harness.saved.length === 1);
     const dims = await page.evaluate(() => window.harness.saved[0].floorplans.map((p) => p.image?.dim ?? null));
-    assert.deepEqual(dims, [0.45, null], 'only the changed plan gets image.dim');
+    assert.deepEqual(dims, [0.65, null], 'only the changed plan gets image.dim');
     await page.waitForFunction(() => window.harness.starts === 2);
     await page.evaluate(() => window.harness.ready);
     await page.locator('.ov-bld[aria-label*="House"]').click();
-    await brightness('0.275'); // the evening halves what is left
+    await brightness('0.175'); // the evening halves what is left
     check(page);
     await close(page);
   });

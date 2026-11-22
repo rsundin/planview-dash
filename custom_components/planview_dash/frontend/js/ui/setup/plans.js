@@ -148,7 +148,7 @@ export function plansStep(ctx) {
 
   // How much the picture is darkened so lit lamps stand out (image.dim); the thumbnail
   // shows it. The standard level is left out of the file.
-  const DIM_LEVELS = [[0, 'off'], [PICTURE_DIM, 'little'], [0.3, 'more'], [0.45, 'most']];
+  const DIM_LEVELS = [[0, 'off'], [PICTURE_DIM, 'little'], [0.45, 'more'], [0.65, 'most']];
   function dimField(plan, thumb) {
     const now = pictureDim(plan);
     const current = DIM_LEVELS.reduce((a, b) => (Math.abs(b[0] - now) < Math.abs(a[0] - now) ? b : a));
