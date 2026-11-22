@@ -587,8 +587,8 @@ input[type='range'] { width: 100%; accent-color: var(--glow); }
 /* ---------- floor plan pictures are darkened a little so lamp light stands out
    (--fp-dim from image.dim, see site.js pictureDim), and evening halves what is left */
 .fp-picture, .fp-outline { transition: filter 0.9s ease; }
-.fp-picture { filter: brightness(calc(1 - var(--fp-dim, 0.15))); }
-.stage.is-night .fp-picture { filter: brightness(calc((1 - var(--fp-dim, 0.15)) * 0.5)) saturate(0.7) contrast(1.05); }
+.fp-picture { filter: brightness(calc(1 - var(--fp-dim, 0.25))); }
+.stage.is-night .fp-picture { filter: brightness(calc((1 - var(--fp-dim, 0.25)) * 0.5)) saturate(0.7) contrast(1.05); }
 .stage.is-night .fp-halo { transform-box: fill-box; transform-origin: center; transform: scale(1.25); }
 .stage.is-night .fp.has-picture .fp-room[data-comfort='ok'] { fill: transparent; }
 .stage.is-night .fp-glows { filter: brightness(1.35) saturate(1.15); }
@@ -737,8 +737,8 @@ details.alert .alert-action { margin: 4px 0 2px; font-size: 13px; }
 }
 .is-lite .ov-glows, .is-lite .ov-windows, .is-lite .ov-solar, .is-lite .fp-glows, .is-lite .ov-tint { mix-blend-mode: normal; }
 /* Evening without filters: the overview darkens through .ov-tint, floor plan pictures fade. */
-.is-lite .fp-picture { opacity: calc(1 - var(--fp-dim, 0.15)); }
-.is-lite .stage.is-night .fp-picture { opacity: calc((1 - var(--fp-dim, 0.15)) * 0.53); }
+.is-lite .fp-picture { opacity: calc(1 - var(--fp-dim, 0.25)); }
+.is-lite .stage.is-night .fp-picture { opacity: calc((1 - var(--fp-dim, 0.25)) * 0.53); }
 .is-lite .ov:not(.is-active) { opacity: 0; }
 .is-lite .ov-window-bloom, .is-lite .ov-wash, .is-lite .ov-solar-sweep, .is-lite .ov-wx::after { display: none; }
 .is-lite .stage.is-night .fp-halo { transform: none; }
