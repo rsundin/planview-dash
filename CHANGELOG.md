@@ -8,6 +8,15 @@ Last cleanups before the 1.0 beta (roadmap V5).
 - **Security pass** over everything that writes (saving, pictures, import, restore points) against [SECURITY.md](SECURITY.md). One fix: a `site.json` nested far deeper than any real dashboard (in a save, an import, a restore point or diagnostics) is now refused as broken JSON instead of failing with a server error. SECURITY.md now says plainly that *Only for administrators* hides a dashboard's panel, while its site files stay readable for every logged-in user
 - Restart Home Assistant after updating
 
+## 0.8.41
+
+Darkening the floor plan picture makes a clear difference, also in the evening.
+
+- **Bigger steps** in the setup guide's **Darken the picture**: a little is now 0.25 (was 0.15), more 0.45 (was 0.3) and a lot 0.65 (was 0.45). In the evening that is 38 %, 28 % and 18 % of the picture's brightness, against 42 %, 35 % and 28 % before, so each step is easy to see
+- **The standard is a little darker**: a plan without `image.dim` now gets 0.25, 75 % brightness in the daytime and 38 % in the evening (was 85 % and 42 %)
+- A plan saved with 0.8.40's "a lot" (0.45) keeps that value, and the guide now shows it as "more"
+- Frontend only: reload the dashboard after updating
+
 ## 0.8.40
 
 Lit lamps stand out more on the floor plans.

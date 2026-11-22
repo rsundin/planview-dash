@@ -323,7 +323,7 @@ Not part of the promise, because only the dashboard's own code uses them and the
 ```
 
 - `floorplans[].image` is a realistic top-down picture of the plan, drawn under the rooms. `bounds` is `[x, y, width, height]` in plan units and defaults to the outline's bounding box, so a picture cropped exactly to the outer walls needs no bounds. The picture must have the same proportions as the bounds.
-- `floorplans[].image.dim` is how much the picture is darkened so lit lamps stand out: 0 (not at all) to 0.8, default 0.15. In the evening what is left is halved. The setup guide's **Darken the picture** sets it per floor plan.
+- `floorplans[].image.dim` is how much the picture is darkened so lit lamps stand out: 0 (not at all) to 0.8, default 0.25. In the evening what is left is halved. The setup guide's levels are 0 (off), 0.25, 0.45 and 0.65; in the evening they give 50 %, 38 %, 28 % and 18 % of the picture's brightness. The setup guide's **Darken the picture** sets it per floor plan.
 - `rooms[].photo` is a photo shown at the top of the room panel.
 
 Paths are relative to the site folder.
