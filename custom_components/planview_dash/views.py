@@ -62,6 +62,29 @@ async def read_limited(stream, limit: int) -> bytes | None:
     return bytes(data)
 
 
+# A real site.json is about six levels deep; far deeper nesting is refused before
+# Python's own recursion limit turns it into a server error.
+_MAX_NESTING = 64
+
+
+def load_json(body: bytes | str):
+    """json.loads for site files: nesting deeper than _MAX_NESTING (or than Python can
+    read) is a ValueError like any other broken JSON, never a RecursionError."""
+    try:
+        data = json.loads(body)
+    except RecursionError:
+        raise ValueError("nested too deeply") from None
+    stack = [(data, 1)]
+    while stack:
+        value, depth = stack.pop()
+        if isinstance(value, (dict, list)):
+            if depth > _MAX_NESTING:
+                raise ValueError("nested too deeply")
+            items = value.values() if isinstance(value, dict) else value
+            stack.extend((v, depth + 1) for v in items if isinstance(v, (dict, list)))
+    return data
+
+
 # Steps that upgrade an older site.json, the same as MIGRATIONS in frontend/js/site.js:
 # index 0 turns a format 1 file into format 2, and so on. Empty while the format is 1.
 _MIGRATIONS: list = []
@@ -365,7 +388,7 @@ class SitesView(HomeAssistantView):
         if body is None:
             return self.json_message("site.json is too large", HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
         try:
-            data = json.loads(body)
+            data = load_json(body)
         except ValueError:
             return self.json_message("Not valid JSON", HTTPStatus.BAD_REQUEST)
         problem = validate_site(data)
@@ -489,7 +512,7 @@ def _with_format(body: bytes) -> bytes:
     """site.json for an export: an older file is upgraded so the .zip says its format.
     Anything else (a newer or broken file) goes out as it is."""
     try:
-        data = json.loads(body)
+        data = load_json(body)
     except ValueError:
         return body
     if not isinstance(data, dict) or data.get("format") == SITE_FORMAT or validate_site(data):
@@ -564,7 +587,7 @@ def read_import(data: bytes) -> tuple[dict, dict[str, bytes]]:
                 raise BackupProblem("the dashboard is too large once unpacked")
             if rel == "site.json":
                 try:
-                    config = json.loads(body)
+                    config = load_json(body)
                 except ValueError:
                     raise BackupProblem("site.json is not valid JSON") from None
                 problem = validate_site(config)
@@ -600,7 +623,7 @@ def list_versions(folder: Path) -> list[dict]:
             continue
         item = {"version": n, "saved": int(path.stat().st_mtime * 1000), "bytes": path.stat().st_size}
         try:
-            data = json.loads(path.read_bytes())
+            data = load_json(path.read_bytes())
         except ValueError:
             data = None
         if isinstance(data, dict):
@@ -621,7 +644,7 @@ def restore_version(folder: Path, n: int) -> dict:
     if not path.is_file():
         raise BackupProblem("that version no longer exists")
     try:
-        data = json.loads(path.read_bytes())
+        data = load_json(path.read_bytes())
     except ValueError:
         raise BackupProblem("that version is not valid JSON") from None
     problem = validate_site(data)

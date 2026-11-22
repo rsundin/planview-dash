@@ -67,7 +67,7 @@ from .const import (
     SITE_ID,
     URL_PATH,
 )
-from .views import BackupView, FrontendView, SitesView, migrate_site, site_format, write_atomic
+from .views import BackupView, FrontendView, SitesView, load_json, migrate_site, site_format, write_atomic
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -177,7 +177,7 @@ def _set_site_name(sites_dir: Path, site: str, name: str) -> None:
     the dashboard's heading follows the sidebar."""
     path = sites_dir / site / "site.json"
     try:
-        config = json.loads(path.read_text(encoding="utf-8"))
+        config = load_json(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return
     if not isinstance(config, dict) or config.get("name") == name:

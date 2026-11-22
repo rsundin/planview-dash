@@ -1,0 +1,5 @@
+# Home Assistant 2026.11, for tests/ha/check_newest.py (needs Python 3.14). The test
+# plugin in requirements.txt has no release for it yet, so this installs Home Assistant
+# alone. The frontend version is the one in homeassistant/components/frontend/manifest.json.
+homeassistant==2026.11.2
+home-assistant-frontend==20261028.6

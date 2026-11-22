@@ -177,6 +177,8 @@ class BackupViewTest(unittest.TestCase):
     def test_bad_config_is_refused(self):
         self.assertIn("no site.json", self.assert_refused(make_zip({"roof.jpg": JPEG})))
         self.assertIn("not valid JSON", self.assert_refused(make_zip({"site.json": b"nope"})))
+        deep = b'{"floorplans": [], "x": ' + b"[" * 100000 + b"]" * 100000 + b"}"
+        self.assertIn("not valid JSON", self.assert_refused(make_zip({"site.json": deep})))
         self.assertIn("floorplans", self.assert_refused(make_zip({"site.json": b'{"floorplans": "x"}'})))
 
     def test_older_file_is_imported_in_the_current_format(self):
