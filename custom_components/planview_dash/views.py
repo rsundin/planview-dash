@@ -191,6 +191,11 @@ def validate_site(data) -> str | None:
         where = f"floorplans[{i}]"
         if not isinstance(plan.get("id"), str) or not plan["id"]:
             return f"{where}.id should be text"
+        image = plan.get("image")
+        if isinstance(image, dict) and "dim" in image and not (
+            _is_number(image["dim"]) and 0 <= image["dim"] <= 0.8
+        ):
+            return f"{where}.image.dim should be a number from 0 to 0.8"
         if "outline" in plan:
             problem = _polygon_problem(plan["outline"], f"{where}.outline")
             if problem:

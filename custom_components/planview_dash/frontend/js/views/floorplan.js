@@ -7,6 +7,7 @@ import { t } from '../i18n.js';
 import { lightColor, createTints } from '../glow.js';
 import { roomStatus, statusIds } from '../status.js';
 import { cameraMarkers, openCamera } from '../ui/camera.js';
+import { pictureDim } from '../site.js';
 
 // Status icons, drawn in a 24-unit box.
 export const ICONS = {
@@ -37,7 +38,7 @@ export function createFloorplan({ site, plan, store, adapter, onRoom }) {
   const floor = sv('g', { class: 'fp-floor' },
     tiles ? rooms.map((r) => sv('polygon', { class: 'fp-tile', points: pts(r.area), 'stroke-width': wall * 0.5 }))
       : sv('polygon', { class: 'fp-outline', points: pts(outline) }),
-    picture ? sv('image', { href: site.asset(picture.src), x: ix, y: iy, width: iw, height: ih, preserveAspectRatio: 'none', class: 'fp-picture' }) : null);
+    picture ? sv('image', { href: site.asset(picture.src), x: ix, y: iy, width: iw, height: ih, preserveAspectRatio: 'none', class: 'fp-picture', style: `--fp-dim: ${pictureDim(plan)}` }) : null);
   const fills = sv('g', { class: 'fp-fills' });
   const glows = sv('g', { class: 'fp-glows' });
   const haloGradient = (id, glow, coreC) => sv('radialGradient', { id },

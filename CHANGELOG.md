@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.40
+
+Lit lamps stand out more on the floor plans.
+
+- **Floor plan pictures are darkened a little**, also in daytime, so a glowing lamp is easier to see. In the evening what is left is halved, as before (the default gives the same evening picture as 0.8.39)
+- **Darken the picture** in the setup guide's Floor plans step sets how much, per floor plan: off, a little (the standard), more or a lot. The thumbnail shows the result before you save. Stored as `image.dim` (0 to 0.8) in `site.json`, see [docs/configuration.md](docs/configuration.md#pictures). Light mode fades the picture instead of using a filter
+- Restart Home Assistant after updating (the save check learned `image.dim`), then reload the dashboard
+
 ## 0.8.39
 
 Docs for everyone who is not the author (roadmap V4).

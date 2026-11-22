@@ -3,6 +3,7 @@
 
 import { el, centroid, bbox, inside } from '../../util.js';
 import { t } from '../../i18n.js';
+import { pictureDim, PICTURE_DIM } from '../../site.js';
 import { areaName, floorName, fillRoomFromArea, matchRoomsByName, fitTilesToPicture } from '../../areas.js';
 
 export function plansStep(ctx) {
@@ -44,8 +45,8 @@ export function plansStep(ctx) {
             for (const b of cfg.overview?.buildings ?? []) if (b.floorplan === plan.id) delete b.floorplan;
             changed(); render();
           } }, t('setup.removePlan'))),
-        src ? el('img', { class: 'setup-plan-thumb', src, alt: plan.name })
-          : el('div', { class: 'setup-field' },
+        src ? dimField(plan, el('img', { class: 'setup-plan-thumb', src, alt: plan.name, style: `--fp-dim: ${pictureDim(plan)}` })) : null,
+        src ? null : el('div', { class: 'setup-field' },
             el('p', { class: 'muted small' }, t(plan.layout === 'tiles' ? 'setup.planTiles' : 'setup.planNoPicture')),
             el('div', { class: 'row' }, fileButton(t('setup.uploadPlanPicture'), (f) => addPlanPicture(plan, f).catch((e) => { status.textContent = e.message; })))),
         (plan.rooms ?? []).some((r) => r.redraw) ? el('p', { class: 'setup-note' }, t('setup.redrawNote')) : null,
@@ -143,6 +144,21 @@ export function plansStep(ctx) {
         l.at = [Math.round(cx + Math.cos(a) * r), Math.round(cy + Math.sin(a) * r)];
       });
     }
+  }
+
+  // How much the picture is darkened so lit lamps stand out (image.dim); the thumbnail
+  // shows it. The standard level is left out of the file.
+  const DIM_LEVELS = [[0, 'off'], [PICTURE_DIM, 'little'], [0.3, 'more'], [0.45, 'most']];
+  function dimField(plan, thumb) {
+    const now = pictureDim(plan);
+    const current = DIM_LEVELS.reduce((a, b) => (Math.abs(b[0] - now) < Math.abs(a[0] - now) ? b : a));
+    const pick = select(DIM_LEVELS.map(([v, k]) => [String(v), t(`setup.pictureDim.${k}`)]), String(current[0]), (v) => {
+      const d = Number(v);
+      if (typeof plan.image === 'string') plan.image = { src: plan.image };
+      if (d === PICTURE_DIM) delete plan.image.dim; else plan.image.dim = d;
+      thumb.style.setProperty('--fp-dim', String(d));
+    }, { 'aria-label': t('setup.pictureDim') });
+    return [thumb, field(t('setup.pictureDim'), pick, t('setup.pictureDimHelp'))];
   }
 
   // Which building on the overview picture opens this plan, lifting its roof when tapped.

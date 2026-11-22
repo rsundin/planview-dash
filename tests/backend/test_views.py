@@ -228,6 +228,8 @@ class SitesViewTest(unittest.TestCase):
                 {"floorplans": [{"id": "p", "cameras": [{"entity": "light.x", "at": [1, 2]}]}]},
             "overview.cameras[0].at should be an [x, y] number pair": {"overview": {"cameras": [{"entity": "camera.x", "at": "here"}]}},
             "goodnight.minutes should be a number from 0 to 120": {"goodnight": {"minutes": 600}},
+            "floorplans[0].image.dim should be a number from 0 to 0.8":
+                {"floorplans": [{"id": "a", "image": {"src": "plan.jpg", "dim": 1}}]},
             "goodnight.then should be a script entity id": {"goodnight": {"then": "lock.front_door"}},
             "all_lights.exclude should be a list of entity ids": {"all_lights": {"exclude": "light.garden"}},
             "overview.solar.panels[0] should be a list of at least three [x, y] number pairs":
