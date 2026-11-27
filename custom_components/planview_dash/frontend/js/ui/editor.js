@@ -30,6 +30,9 @@ const KINDS = [
   { id: 'climate', label: 'editor.kindClimate', match: (s) => s.entity_id.startsWith('climate.') },
   { id: 'cameras', label: 'editor.kindCameras', match: (s) => s.entity_id.startsWith('camera.') },
   { id: 'switches', label: 'editor.kindSwitches', match: (s) => s.entity_id.startsWith('switch.'), folded: true },
+  // Speakers and TVs find their room through its area; placing one only moves its icon.
+  // Folded and never counted as not placed: a speaker that is not placed is fine.
+  { id: 'media', label: 'editor.kindMedia', match: (s) => s.entity_id.startsWith('media_player.'), folded: true },
 ];
 // Switches are placed as lamps.
 const placeKind = (kind) => (kind === 'switches' ? 'lights' : kind);
@@ -65,6 +68,7 @@ export function createEditor({ site, store, saveSite = null, reload = () => loca
       for (const room of plan.rooms ?? []) {
         if ((room.lights ?? []).some((l) => l.entity === id)) return room.name;
         if (room.climate === id || room.temperature === id) return room.name;
+        if ((room.media ?? []).some((m) => m.entity === id)) return room.name;
       }
     }
     const device = (raw.climates ?? []).find((c) => c.entity === id);
@@ -82,6 +86,7 @@ export function createEditor({ site, store, saveSite = null, reload = () => loca
         if (room.lights) room.lights = room.lights.filter((l) => l.entity !== id);
         if (room.climate === id) delete room.climate;
         if (room.temperature === id) delete room.temperature;
+        if (room.media) { room.media = room.media.filter((m) => m.entity !== id); if (!room.media.length) delete room.media; }
       }
     }
     for (const plan of raw.floorplans ?? []) {
@@ -161,6 +166,8 @@ export function createEditor({ site, store, saveSite = null, reload = () => loca
       room.climate = id;
     } else if (kind === 'temperature') {
       room.temperature = id;
+    } else if (kind === 'media') {
+      (room.media ??= []).push({ entity: id, at: at.map(Math.round) });
     }
     save(t('editor.placedIn', { name: nameOf(id), room: room.name }));
     return true;
@@ -507,7 +514,7 @@ export function createEditor({ site, store, saveSite = null, reload = () => loca
   function lampNode(id) {
     const zones = (raw.overview?.zones ?? []).filter((z) => (z.lights ?? []).includes(id)).map((z) => z.id);
     const nodes = [...document.querySelectorAll('[data-drag]')].filter((n) =>
-      n.dataset.drag === 'light' || n.dataset.drag === 'camera' ? n.dataset.entity === id : zones.includes(n.dataset.zone));
+      n.dataset.drag === 'light' || n.dataset.drag === 'camera' || n.dataset.drag === 'media' ? n.dataset.entity === id : zones.includes(n.dataset.zone));
     return nodes.find((n) => { const r = n.getBoundingClientRect(); return r.width > 0 && r.height > 0; }) ?? null;
   }
   function placeTag() {
@@ -672,7 +679,7 @@ export function createEditor({ site, store, saveSite = null, reload = () => loca
         drag.moved = true;
         drag.node.classList.add('is-dragging');
         dragNode = drag.node;
-        const r = Number(drag.node.querySelector?.('.fp-lamp-hit, .cam-hit')?.getAttribute('r') ?? drag.node.getAttribute('r') ?? 12);
+        const r = Number(drag.node.querySelector?.('.fp-lamp-hit, .cam-hit, .fp-speaker-hit')?.getAttribute('r') ?? drag.node.getAttribute('r') ?? 12);
         drag.ghost = sv('circle', { class: 'drag-ghost', r: Math.max(r * 0.8, 6) });
         svg.append(drag.ghost);
       }
@@ -699,6 +706,8 @@ export function createEditor({ site, store, saveSite = null, reload = () => loca
       const at = snap(p1);
       if (d.node.dataset.drag === 'camera') {
         setCamera(d.node.dataset.entity, (c) => { c.at = at; }, t('editor.moved', { name: nameOf(d.node.dataset.entity) }));
+      } else if (d.node.dataset.drag === 'media' && plan) {
+        placeInPlan(plan, at, d.node.dataset.entity);
       } else if (d.node.dataset.drag === 'light' && plan) {
         // A strip is grabbed anywhere along it: it moves as far as the finger did.
         const strip = stripOf(planLight(d.node.dataset.entity)?.light);

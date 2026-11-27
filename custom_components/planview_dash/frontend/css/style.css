@@ -259,6 +259,25 @@ button { font: inherit; color: inherit; }
 .fp-lamp.is-missing { opacity: 0.35; }
 /* Known to Home Assistant but not responding: dimmed, with a broken ring or line */
 .fp-lamp.is-silent { opacity: 0.5; }
+/* Speakers and TVs (views/speakers.js): an icon, a pulse over the room while it plays,
+   tinted from the album art, and a glow round a TV that is on. */
+.fp-speaker { cursor: pointer; }
+.fp-speaker:focus-visible { outline: none; }
+.fp-speaker-hit { fill: transparent; }
+.fp-speaker-dot { fill: var(--bg); stroke: var(--muted-2); transition: stroke 0.3s; }
+.fp-speaker-icon { fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.fp-speaker.is-on .fp-speaker-dot { stroke: var(--music-ink, #c9a2ff); }
+.fp-speaker.is-on .fp-speaker-icon { stroke: var(--ink); }
+.fp-speaker:hover .fp-speaker-dot, .fp-speaker:focus-visible .fp-speaker-dot { stroke: var(--accent); }
+.fp-speaker.is-missing { opacity: 0.35; }
+.fp-speaker.is-silent { opacity: 0.5; }
+.fp-music-pulse { fill: var(--music, #c9a2ff); opacity: 0; transition: opacity 0.6s; }
+.fp-music-pulse.is-on { opacity: 0.16; animation: music-pulse 2.6s ease-in-out infinite; }
+@keyframes music-pulse { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.26; } }
+@media (prefers-reduced-motion: reduce) { .fp-music-pulse.is-on { animation: none; } }
+.fp-tv-glow { fill: #8cc4ff; opacity: 0; transition: opacity 0.4s; }
+.fp-tv-glow.is-on { opacity: 0.22; }
+
 .fp-lamp.is-silent .fp-lamp-ring, .fp-lamp.is-silent .fp-strip-mark { stroke-dasharray: 0.6 0.4; } /* pathLength 12 or 24 */
 /* LED strips: a light drawn as a line or a surface (views/floorplan.js addStrip). */
 .fp-strip-glow { transition: opacity 0.5s ease; }
@@ -396,6 +415,24 @@ button { font: inherit; color: inherit; }
 .light-name { font-weight: 500; }
 .pct { font: 12.5px var(--f-mono); color: var(--muted); }
 .light-list li.is-missing { opacity: 0.5; }
+/* Now playing in the room panel (ui/nowplaying.js). */
+.np-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.np-row { display: grid; gap: 8px; }
+.np-row.is-missing { opacity: 0.5; }
+.np-top { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.np-art { width: 52px; height: 52px; border-radius: 6px; flex: none; object-fit: cover; background: var(--floor); }
+.np-art-none { display: grid; place-items: center; color: var(--muted); border: 1px solid var(--line); }
+.np-text { display: grid; min-width: 0; }
+.np-name { font-size: 13px; color: var(--muted); }
+.np-title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.np-by { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.np-row.is-playing .np-name { color: var(--ink); }
+.np-controls, .np-vol, .np-more { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.np-btn { display: inline-grid; place-items: center; color: var(--ink); padding: 0; }
+.np-btn[aria-pressed="true"] { border-color: var(--accent); }
+.np-volume { flex: 1; min-width: 120px; }
+.np-source { flex: 1; min-width: 0; max-width: 100%; }
+.np-favs { display: flex; gap: 6px; flex-wrap: wrap; }
 input[type='range'] { width: 100%; accent-color: var(--glow); }
 
 /* ---------- settings sheet + editor */
@@ -743,6 +780,8 @@ details.alert .alert-action { margin: 4px 0 2px; font-size: 13px; }
 .is-lite .ov-window-bloom, .is-lite .ov-wash, .is-lite .ov-solar-sweep, .is-lite .ov-wx::after { display: none; }
 .is-lite .stage.is-night .fp-halo { transform: none; }
 .is-lite .sheet, .is-lite .bell { background: rgba(4, 9, 7, 0.9); }
+/* Music: the pulse stands still at its middle strength. */
+.is-lite .fp-music-pulse.is-on { opacity: 0.18; }
 
 /* ---------- text size per device (main.js: body[data-text]): large and extra large
    Everything outside the picture grows as one piece, text, cards and touch targets alike;

@@ -176,6 +176,9 @@ function index(site) {
     for (const room of plan.rooms ?? []) {
       room.plan = plan.id;
       room.lights ??= [];
+      // Speakers and TVs placed in the room; the area's other players join them at start (media.js).
+      room.media = Array.isArray(room.media) ? room.media.filter((m) => m?.entity) : [];
+      for (const m of room.media) label(m.entity, m.name);
       roomById.set(room.id, room);
       for (const l of room.lights) { lights.add(l.entity); names.set(l.entity, l.name ?? room.name); label(l.entity, l.name); }
       if (room.climate) climates.add(room.climate);

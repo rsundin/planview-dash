@@ -113,6 +113,7 @@ _TOP_LEVEL = {
     "name": str, "language": str, "locale": str, "currency": str, "weather": str,
     "comfort": dict, "overview": dict, "energy": dict, "wall_screen": dict, "mock": dict,
     "floorplans": list, "climates": list, "scenes": list, "all_lights": dict, "goodnight": dict,
+    "music": dict, "screens": list, "closed_house": dict,
 }
 
 
@@ -169,6 +170,42 @@ def _cameras_problem(value, where: str) -> str | None:
             return f"{where}[{i}].at should be an [x, y] number pair"
         if "angle" in cam and not _is_number(cam["angle"]):
             return f"{where}[{i}].angle should be a number"
+    return None
+
+
+def _media_problem(value, where: str) -> str | None:
+    """Speakers and TVs placed in a room: a media player entity, and where it is."""
+    problem = _list_of_objects(value, where)
+    if problem:
+        return problem
+    for i, item in enumerate(value):
+        if not isinstance(item.get("entity"), str) or not item["entity"].startswith("media_player."):
+            return f"{where}[{i}].entity should be a media player entity id"
+        if "at" in item and not _is_point(item["at"]):
+            return f"{where}[{i}].at should be an [x, y] number pair"
+    return None
+
+
+def _extras_problem(data: dict) -> str | None:
+    """Music, screen profiles and the closed house (1.1)."""
+    exclude = data.get("music", {}).get("exclude", [])
+    if not isinstance(exclude, list) or not all(isinstance(x, str) for x in exclude):
+        return "music.exclude should be a list of entity ids"
+    screens = data.get("screens", [])
+    problem = _list_of_objects(screens, "screens")
+    if problem:
+        return problem
+    for i, screen in enumerate(screens):
+        if not isinstance(screen.get("id"), str) or not screen["id"]:
+            return f"screens[{i}].id should be text"
+        if "hide_rooms" in screen and not isinstance(screen["hide_rooms"], list):
+            return f"screens[{i}].hide_rooms should be a list of room ids"
+    closed = data.get("closed_house", {})
+    for key in ("frost", "damp"):
+        if key in closed and not _is_number(closed[key]):
+            return f"closed_house.{key} should be a number"
+    if "arrive" in closed and not isinstance(closed["arrive"], dict):
+        return "closed_house.arrive should be an object"
     return None
 
 
@@ -247,6 +284,10 @@ def validate_site(data) -> str | None:
                         return problem
             if "sensors" in room and not isinstance(room["sensors"], list):
                 return f"{here}.sensors should be a list"
+            if "media" in room:
+                problem = _media_problem(room["media"], f"{here}.media")
+                if problem:
+                    return problem
     overview = data.get("overview", {})
     if "size" in overview and not _is_point(overview["size"]):
         return "overview.size should be [width, height] in numbers"
@@ -285,7 +326,7 @@ def validate_site(data) -> str | None:
         problem = _polygon_problem(panel, f"overview.solar.panels[{i}]")
         if problem:
             return problem
-    return None
+    return _extras_problem(data)
 
 
 def safe_path(base: Path, *parts: str) -> Path | None:

@@ -4,6 +4,7 @@
 
 import { num, paused } from '../util.js';
 import { dayBounds } from '../entities.js';
+import { F } from '../media.js';
 
 export function createMockAdapter(site) {
   let store;
@@ -64,6 +65,81 @@ export function createMockAdapter(site) {
     return out;
   }
 
+
+  function mediaAttrs(id, m) {
+    const all = F.PAUSE | F.VOLUME_SET | F.VOLUME_MUTE | F.PREVIOUS | F.NEXT | F.PLAY_MEDIA | F.SELECT_SOURCE | F.STOP | F.PLAY | F.BROWSE | F.GROUPING | F.TURN_ON | F.TURN_OFF;
+    const features = typeof m.features === 'number' ? m.features : m.features === 'basic' ? F.PAUSE | F.PLAY : all;
+    const playing = (m.state ?? 'idle') === 'playing' || m.state === 'paused';
+    return {
+      friendly_name: m.name ?? id,
+      supported_features: features,
+      ...(m.tv ? { device_class: 'tv' } : { device_class: 'speaker' }),
+      volume_level: m.volume ?? 0.3,
+      is_volume_muted: false,
+      ...(m.sources ? { source_list: m.sources, source: m.source ?? m.sources[0] } : {}),
+      ...(playing && m.title ? { media_title: m.title, media_artist: m.artist ?? null, media_content_type: 'music' } : {}),
+      ...(playing && m.title && m.colour !== null ? { entity_picture: testArt(m.colour ?? [200, 90, 160]) } : {}),
+      group_members: m.group ?? [id],
+    };
+  }
+
+  // Media players react to the calls Home Assistant's do; a group is kept in step on
+  // every member, as Home Assistant lists it.
+  function mediaCall(domain, service, data, ids) {
+    const media = site.mock?.media ?? {};
+    const groupOf = (id) => store.get(id)?.attributes?.group_members ?? [id];
+    const setGroup = (members) => { for (const id of members) set(id, null, { group_members: members }); };
+    const share = (from, to) => {
+      const a = store.get(from)?.attributes ?? {};
+      set(to, store.get(from)?.state, { media_title: a.media_title, media_artist: a.media_artist, entity_picture: a.entity_picture, media_content_type: a.media_content_type });
+    };
+    if (domain === 'music_assistant') {
+      const from = data.source_player;
+      for (const id of ids) { share(from, id); }
+      set(from, 'idle', { media_title: null, media_artist: null, entity_picture: null });
+      return;
+    }
+    for (const id of ids) {
+      const s = store.get(id);
+      if (!s) continue;
+      const members = groupOf(id);
+      const playState = (state) => { for (const x of members) set(x, state); };
+      switch (service) {
+        case 'media_play_pause': playState(s.state === 'playing' ? 'paused' : 'playing'); break;
+        case 'media_play': playState('playing'); break;
+        case 'media_pause': playState('paused'); break;
+        case 'media_stop': playState('idle'); break;
+        case 'media_next_track':
+        case 'media_previous_track': for (const x of members) set(x, null, { media_title: `${service === 'media_next_track' ? 'Next' : 'Previous'} track` }); break;
+        case 'volume_set': set(id, null, { volume_level: data.volume_level }); break;
+        case 'volume_mute': set(id, null, { is_volume_muted: !!data.is_volume_muted }); break;
+        case 'select_source': set(id, null, { source: data.source }); break;
+        case 'turn_off': set(id, 'off', { media_title: null, media_artist: null, entity_picture: null }); break;
+        case 'turn_on': set(id, media[id]?.tv ? 'on' : 'idle'); break;
+        case 'play_media': {
+          const title = (media[id]?.favourites ?? ['Morning jazz', 'Radio One', 'Dinner playlist'])[Number(String(data.media_content_id).split(':')[1])] ?? data.media_content_id;
+          for (const x of members) set(x, 'playing', { media_title: title, media_artist: null, entity_picture: testArt([90, 160, 220]) });
+          break;
+        }
+        case 'join': {
+          const joined = [...new Set([...groupOf(id), ...[].concat(data.group_members ?? [])])];
+          for (const x of [].concat(data.group_members ?? [])) {
+            for (const old of groupOf(x)) if (old !== x && !joined.includes(old)) set(old, null, { group_members: groupOf(old).filter((y) => y !== x) });
+            share(id, x);
+          }
+          setGroup(joined);
+          break;
+        }
+        case 'unjoin': {
+          const rest = members.filter((x) => x !== id);
+          if (rest.length) setGroup(rest);
+          set(id, 'idle', { group_members: [id], media_title: null, media_artist: null, entity_picture: null });
+          break;
+        }
+        default: break;
+      }
+    }
+  }
 
   function seed() {
     const list = [];
@@ -148,6 +224,10 @@ export function createMockAdapter(site) {
       if (id.startsWith('camera.')) { list.push(S(id, 'idle', { friendly_name: (typeof x === 'object' && x.name) || id, entity_picture: TEST_CAMERA })); continue; }
       list.push(S(id, 'off', { friendly_name: (typeof x === 'object' && x.name) || id, ...((typeof x === 'object' && x.attributes) || {}) }));
     }
+    // Speakers and TVs: site.mock.media = { entity_id: { name, room, state?, tv?, title?,
+    // artist?, volume?, sources?, source?, colour?, features?: 'all' | 'basic' | number,
+    // platform?, group? } }. They go into their room's test area (areas() below).
+    for (const [id, m] of Object.entries(site.mock?.media ?? {})) list.push(S(id, m.state ?? 'idle', mediaAttrs(id, m)));
     list.push(sunState());
     // The dashboard's goodnight sensor (sensor.py), unless the test data has it under an id
     // of its own (renamed by the user): mock.entities with attributes.planview_dash_site.
@@ -288,6 +368,8 @@ export function createMockAdapter(site) {
           set(id, 'unknown', { ...attrs, minutes: null });
           for (const l of [].concat(data.entity_id ?? [])) if (store.get(l)) set(l, 'off', { brightness: null });
         }, ms);
+      } else if (domain === 'media_player' || (domain === 'music_assistant' && service === 'transfer_queue')) {
+        mediaCall(domain, service, data, ids);
       } else if (domain === 'scene' && service === 'turn_on') {
         for (const id of ids) {
           const sc = site.scenes.find((x) => x.entity === id);
@@ -312,7 +394,8 @@ export function createMockAdapter(site) {
       } else {
         for (const room of site.index.rooms.values()) {
           if (room.device) continue;
-          add(room.ha_area ?? room.id, room.name, [...room.lights.map((l) => l.entity), room.climate, room.temperature, ...(room.sensors ?? [])]);
+          const media = Object.entries(site.mock?.media ?? {}).filter(([, m]) => m.room === room.id).map(([id]) => id);
+          add(room.ha_area ?? room.id, room.name, [...room.lights.map((l) => l.entity), room.climate, room.temperature, ...(room.sensors ?? []), ...media]);
         }
         for (const z of site.overview?.zones ?? []) add(`outdoor_${z.id}`, z.name, z.lights);
       }
@@ -327,6 +410,8 @@ export function createMockAdapter(site) {
         const reg = d
           ? { device_id: d.device_id, name: null, original_name: d.own, has_entity_name: true }
           : { name: null, original_name: s.attributes?.friendly_name ?? null, has_entity_name: false };
+        const media = site.mock?.media?.[s.entity_id];
+        if (media) reg.platform = media.platform ?? 'sonos';
         const e = byId.get(s.entity_id);
         if (e) Object.assign(e, reg, { device_id: reg.device_id ?? e.device_id });
         else entities.push({ entity_id: s.entity_id, area_id: null, device_id: null, ...reg });
@@ -351,6 +436,20 @@ export function createMockAdapter(site) {
       return { SE3: day.map((x) => ({ start: x.start, end: x.end, price: Math.round(x.value * 1000 * 100) / 100 })) };
     },
 
+    // A player's media browser: a root with Favourites, and a few favourites in it.
+    async browse(entityId, contentId) {
+      await new Promise((r) => setTimeout(r, 60));
+      const m = site.mock?.media?.[entityId];
+      if (!m) throw new Error(`Unknown player ${entityId}`);
+      const favs = m.favourites ?? ['Morning jazz', 'Radio One', 'Dinner playlist'];
+      if (!contentId) {
+        return { title: 'Media', children: [
+          { title: 'Artists', media_content_id: 'artists', media_content_type: 'artists', can_play: false, can_expand: true },
+          { title: 'Favorites', media_content_id: 'favorites', media_content_type: 'favorites', can_play: false, can_expand: true }] };
+      }
+      return { title: 'Favorites', children: favs.map((title, i) => ({ title, media_content_id: `fav:${i}`, media_content_type: 'music', can_play: true, can_expand: false })) };
+    },
+
     async history(entityId, hours = 24) {
       const s = store.get(entityId);
       const base = entityId.startsWith('climate.') ? s?.attributes?.temperature ?? 21 : num(s?.state) ?? 21;
@@ -364,6 +463,9 @@ export function createMockAdapter(site) {
     },
   };
 }
+
+// Album art for test speakers: a drawn square in the given colour.
+const testArt = ([r, g, b]) => `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="rgb(${r},${g},${b})"/><circle cx="32" cy="32" r="18" fill="rgb(${Math.round(r * 0.6)},${Math.round(g * 0.6)},${Math.round(b * 0.6)})"/><circle cx="32" cy="32" r="4" fill="#eee"/></svg>`)}`;
 
 // camera.garden_motion → "Garden motion"
 const pretty = (id) => { const s = id.split('.')[1].replace(/_/g, ' '); return s[0].toUpperCase() + s.slice(1); };

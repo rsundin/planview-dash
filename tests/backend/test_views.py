@@ -248,6 +248,14 @@ class SitesViewTest(unittest.TestCase):
                 {"overview": {"zones": [{"id": "z", "lamps": [{"type": "line", "line": "along the fence"}]}]}},
             "overview.zones[0].lamps should be a list":
                 {"overview": {"zones": [{"id": "z", "lamps": {"at": [1, 2]}}]}},
+            "floorplans[0].rooms[0].media[0].entity should be a media player entity id":
+                {"floorplans": [{"id": "a", "rooms": [{"id": "b", "media": [{"entity": "light.x"}]}]}]},
+            "floorplans[0].rooms[0].media[0].at should be an [x, y] number pair":
+                {"floorplans": [{"id": "a", "rooms": [{"id": "b", "media": [{"entity": "media_player.x", "at": 5}]}]}]},
+            "music.exclude should be a list of entity ids": {"music": {"exclude": "media_player.x"}},
+            "screens[0].id should be text": {"screens": [{"name": "Hall"}]},
+            "screens[0].hide_rooms should be a list of room ids": {"screens": [{"id": "guest", "hide_rooms": "office"}]},
+            "closed_house.frost should be a number": {"closed_house": {"frost": "low"}},
         }
         for reason, data in cases.items():
             with self.subTest(reason=reason):

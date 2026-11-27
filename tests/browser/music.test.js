@@ -1,0 +1,182 @@
+// Music in the room (roadmap MU1–MU4): speakers and TVs found through their room's area
+// or placed, the pulse while one plays, now playing in the room panel, the music view on
+// the plan (join, leave, move, group volume), the whole-house chip and goodnight.
+
+const { describe, test } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const { ROOT, setup, harness, close, check } = require('./lib');
+
+const houseSite = () => JSON.parse(fs.readFileSync(path.join(ROOT, 'sites', 'example-house', 'site.json'), 'utf8'));
+const serve = (site, id = 'example-house') => (page) => page.route(`**/sites/${id}/site.json`, (route) => route.fulfill({ contentType: 'application/json', body: JSON.stringify(site) }));
+const toPlan = async (page, plan = 'house') => {
+  await page.locator(`.views .tab[data-view="plan:${plan}"]`).click();
+  await page.waitForFunction((p) => document.querySelector('.stage').dataset.view === `plan:${p}`, plan);
+  await page.waitForTimeout(600); // the roof lifts first
+};
+const setState = (page, id, change) => page.evaluate(([i, c]) => {
+  const s = window.store.get(i);
+  window.store.update({ ...s, ...c, attributes: { ...s.attributes, ...(c.attributes ?? {}) } });
+  window.store.flush();
+}, [id, change]);
+const openRoom = async (page, name) => {
+  await page.locator(`.fp.is-active .fp-room[aria-label="${name}"]`).click();
+  await page.locator('.panel.is-open').waitFor();
+};
+
+describe('music in the room', () => {
+  const env = setup();
+
+  test('speakers show up in their rooms by area, and the room pulses while one plays', async () => {
+    const page = await harness(env, '?site=example-house');
+    await toPlan(page);
+    const marks = page.locator('.fp.is-active .fp-speaker');
+    assert.equal(await marks.count(), 5, 'every test player in its room');
+    const kitchen = page.locator('.fp.is-active .fp-speaker[data-entity="media_player.kitchen_speaker"]');
+    assert.match(await kitchen.getAttribute('aria-label'), /Kitchen speaker: Morning jazz/);
+    assert.ok(await kitchen.evaluate((n) => n.classList.contains('is-on')));
+    const pulses = page.locator('.fp.is-active .fp-music-pulse.is-on');
+    assert.equal(await pulses.count(), 1, 'only the kitchen plays');
+    // The pulse takes the colour of the album art.
+    await page.waitForFunction(() => document.querySelector('.fp.is-active .fp-music-pulse.is-on')?.style.getPropertyValue('--music'));
+    assert.equal(await pulses.first().evaluate((n) => getComputedStyle(n).animationName), 'music-pulse');
+    // A TV that is on glows; turned off, it does not.
+    assert.equal(await page.locator('.fp.is-active .fp-tv-glow.is-on').count(), 1);
+    await setState(page, 'media_player.living_room_tv', { state: 'off' });
+    assert.equal(await page.locator('.fp.is-active .fp-tv-glow.is-on').count(), 0);
+    // Paused: no pulse.
+    await setState(page, 'media_player.kitchen_speaker', { state: 'paused' });
+    assert.equal(await page.locator('.fp.is-active .fp-music-pulse.is-on').count(), 0);
+    check(page);
+    await close(page);
+  });
+
+  test('light mode keeps the pulse still', async () => {
+    const page = await harness(env, '?site=example-house&lite');
+    await toPlan(page);
+    const pulse = page.locator('.fp.is-active .fp-music-pulse.is-on');
+    assert.equal(await pulse.count(), 1);
+    assert.equal(await pulse.evaluate((n) => getComputedStyle(n).animationName), 'none');
+    assert.equal(await pulse.evaluate((n) => getComputedStyle(n).opacity), '0.18');
+    check(page);
+    await close(page);
+  });
+
+  test('a placed speaker sits where it was placed; turned off in site.json, none show', async () => {
+    const site = houseSite();
+    const kitchen = site.floorplans[0].rooms.find((r) => r.id === 'kitchen');
+    kitchen.media = [{ entity: 'media_player.kitchen_speaker', at: [1000, 1000] }];
+    let page = await harness(env, '?site=example-house', { prepare: serve(site) });
+    await toPlan(page);
+    const dot = page.locator('.fp.is-active .fp-speaker[data-entity="media_player.kitchen_speaker"] .fp-speaker-dot');
+    assert.equal(await dot.getAttribute('cx'), '1000');
+    assert.equal(await page.locator('.fp.is-active .fp-speaker').count(), 5, 'still one icon per player');
+    check(page);
+    await close(page);
+
+    site.music = { enabled: false };
+    page = await harness(env, '?site=example-house', { prepare: serve(site) });
+    await toPlan(page);
+    assert.equal(await page.locator('.fp-speaker').count(), 0);
+    check(page);
+    await close(page);
+  });
+
+  test('placement mode never nags about speakers, and places one when asked', async () => {
+    const page = await harness(env, '?site=example-house&edit');
+    await page.locator('aside.editor').waitFor();
+    await toPlan(page);
+    const group = page.locator('.editor-list section[data-kind="media"]');
+    await group.waitFor();
+    assert.doesNotMatch(await group.locator('h3').textContent(), /not placed/i, 'no count of unplaced speakers');
+    // Speakers found by area show where they are; the group is not among the unplaced.
+    assert.match(await group.textContent(), /Automatically in Kitchen|Kitchen speaker/);
+    await group.locator('.editor-ent', { hasText: 'Kitchen speaker' }).click();
+    const box = await page.locator('.fp.is-active .fp-room[aria-label="Kitchen"]').boundingBox();
+    await page.mouse.click(box.x + box.width * 0.7, box.y + box.height * 0.7);
+    await page.waitForFunction(() => JSON.parse(localStorage.getItem('pvd:example-house:draft'))?.floorplans?.[0]?.rooms?.find((r) => r.id === 'kitchen')?.media?.length === 1);
+    check(page);
+    await close(page);
+  });
+
+  test('a speaker missing in Home Assistant warns only when it is placed', async () => {
+    const site = houseSite();
+    // In an area but gone: nothing is said. Placed and gone: said, like a lamp.
+    site.floorplans[0].rooms.find((r) => r.id === 'office').media = [{ entity: 'media_player.gone_speaker', at: [100, 100] }];
+    const page = await harness(env, '?site=example-house', { prepare: serve(site) });
+    const missing = page.locator('.alerts details[data-key="missing"]');
+    await missing.waitFor();
+    assert.match(await missing.textContent(), /media_player\.gone_speaker/);
+    assert.doesNotMatch(await missing.textContent(), /kitchen_speaker|living_room_tv/);
+    check(page);
+    await close(page);
+  });
+
+  test('now playing: all controls on a full player, only play/pause on a simple one', async () => {
+    const page = await harness(env, '?site=example-house');
+    await toPlan(page);
+    await openRoom(page, 'Kitchen');
+    const row = page.locator('.panel .np-row[data-entity="media_player.kitchen_speaker"]');
+    assert.equal(await row.locator('.np-title').textContent(), 'Morning jazz');
+    assert.equal(await row.locator('.np-by').textContent(), 'The Test Trio');
+    assert.ok(await row.locator('img.np-art').isVisible(), 'artwork');
+    for (const k of ['prev', 'play', 'next', 'mute']) assert.ok(await row.locator(`[data-np="${k}"]`).isVisible(), k);
+    assert.ok(await row.locator('.np-volume').isVisible());
+    assert.equal(await row.locator('.np-volume').inputValue(), '35');
+    await row.locator('[data-np="play"]').click();
+    await page.waitForFunction(() => window.store.get('media_player.kitchen_speaker').state === 'paused');
+    assert.equal(await row.locator('[data-np="play"]').getAttribute('aria-label'), 'Play');
+    await row.locator('.np-volume').fill('60');
+    await row.locator('.np-volume').dispatchEvent('change');
+    await page.waitForFunction(() => window.store.get('media_player.kitchen_speaker').attributes.volume_level === 0.6);
+    // Favourites from the player's media browser.
+    await row.locator('.np-fav-btn').click();
+    await row.locator('.np-fav', { hasText: 'Radio One' }).click();
+    await page.waitForFunction(() => window.store.get('media_player.kitchen_speaker').attributes.media_title === 'Radio One');
+    await page.locator('.panel .icon-btn').click();
+
+    await openRoom(page, 'Office');
+    const radio = page.locator('.panel .np-row[data-entity="media_player.office_radio"]');
+    assert.ok(await radio.locator('[data-np="play"]').isVisible());
+    for (const k of ['prev', 'next', 'mute', 'power']) assert.equal(await radio.locator(`[data-np="${k}"]`).isVisible(), false, `${k} hidden`);
+    assert.equal(await radio.locator('.np-volume').isVisible(), false, 'no volume without volume_set');
+    assert.equal(await radio.locator('.np-fav-btn').isVisible(), false);
+    // No artwork: the speaker icon instead.
+    assert.ok(await radio.locator('.np-art-none').isVisible());
+    assert.equal(await radio.locator('img.np-art').isVisible(), false);
+    check(page);
+    await close(page);
+  });
+
+  test('several players in a room: the playing one first, sources where there are any', async () => {
+    const page = await harness(env, '?site=example-house');
+    await toPlan(page);
+    await setState(page, 'media_player.living_room_speaker', { state: 'playing', attributes: { media_title: 'Radio' } });
+    await setState(page, 'media_player.living_room_tv', { state: 'off' });
+    await openRoom(page, 'Living room');
+    const rows = page.locator('.panel .np-row');
+    assert.equal(await rows.count(), 2);
+    assert.equal(await rows.first().getAttribute('data-entity'), 'media_player.living_room_speaker');
+    const source = rows.first().locator('.np-source');
+    assert.ok(await source.isVisible());
+    await source.selectOption('Line in');
+    await page.waitForFunction(() => window.store.get('media_player.living_room_speaker').attributes.source === 'Line in');
+    check(page);
+    await close(page);
+  });
+
+  test('a call the player refuses is shown and announced', async () => {
+    const page = await harness(env, '?site=example-house');
+    await toPlan(page);
+    await openRoom(page, 'Kitchen');
+    await page.evaluate(() => { window.harness.failCalls = true; });
+    await page.locator('.panel .np-row [data-np="next"]').click();
+    const toast = page.locator('.toast.is-error[role="alert"]');
+    await toast.waitFor();
+    assert.match(await toast.textContent(), /Kitchen speaker/);
+    page.errors = page.errors.filter((e) => !/failed/.test(e));
+    check(page);
+    await close(page);
+  });
+});

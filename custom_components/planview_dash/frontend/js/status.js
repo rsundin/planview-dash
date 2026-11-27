@@ -176,6 +176,9 @@ export function configEntities(raw) {
       add(room?.climate, where);
       add(room?.temperature, where);
       for (const id of list(room?.sensors)) add(id, where);
+      // A speaker in site.json is placed: missing in Home Assistant, it is said. One only
+      // found through its area is never in this list.
+      for (const m of list(room?.media)) add(m?.entity, where);
     }
   }
   for (const plan of list(raw.floorplans)) for (const c of list(plan?.cameras)) { add(c?.entity, plan.name ?? plan.id); add(c?.motion, plan.name ?? plan.id); }

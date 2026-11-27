@@ -8,6 +8,7 @@ import { lightColor, createTints } from '../glow.js';
 import { roomStatus, statusIds } from '../status.js';
 import { cameraMarkers, openCamera } from '../ui/camera.js';
 import { pictureDim } from '../site.js';
+import { createSpeakers } from './speakers.js';
 
 // Status icons, drawn in a 24-unit box.
 export const ICONS = {
@@ -196,12 +197,15 @@ export function createFloorplan({ site, plan, store, adapter, onRoom }) {
   const camsG = cameraMarkers({ cams, unit, store, site,
     onOpen: (i) => openCamera({ site, store, adapter, ids: cams.map((c) => c.entity), index: i }) });
 
+  // Speakers and TVs in their rooms (views/speakers.js).
+  const speakers = createSpeakers({ site, rooms, store, adapter, unit, onRoom });
+
   const svg = sv('svg', {
     class: 'fp-svg', viewBox: `${bb.x - pad} ${bb.y - pad} ${bb.w + pad * 2} ${bb.h + pad * 2}`,
     role: 'group', 'aria-label': t('plan.label', { name: plan.name }),
   },
   defs,
-  floor, fills, glows, walls, labels, lamps, camsG);
+  floor, fills, speakers.pulses, glows, walls, labels, lamps, speakers.marks, camsG);
 
   const root = el('div', { class: `view fp${picture ? ' has-picture' : ''}${tiles ? ' is-tiles' : ''}`, 'data-plan': plan.id }, svg);
 

@@ -361,6 +361,13 @@
     "idle": { "back_after": 120, "dim_from": "22:30", "dim_to": "06:00", "wake": ["binary_sensor.living_room_motion"] }
   },
   "mock": {
+    "media": {
+      "media_player.kitchen_speaker": { "name": "Kökets högtalare", "room": "kitchen", "state": "playing", "title": "Morgonjazz", "artist": "The Test Trio", "volume": 0.35, "colour": [214, 120, 70] },
+      "media_player.living_room_tv": { "name": "Vardagsrummets tv", "room": "living_room", "tv": true, "state": "on", "sources": ["TV", "HDMI 1", "Streaming"], "source": "TV" },
+      "media_player.living_room_speaker": { "name": "Vardagsrummets högtalare", "room": "living_room", "state": "idle", "volume": 0.25, "sources": ["Radio", "Linje in", "TV"] },
+      "media_player.bedroom_speaker": { "name": "Sovrummets högtalare", "room": "bedroom", "state": "idle", "volume": 0.2 },
+      "media_player.office_radio": { "name": "Arbetsrummets radio", "room": "office", "state": "paused", "title": "Nyheter", "features": "basic", "colour": null }
+    },
     "color_temps": { "light.kitchen_counter": 4500, "light.dining_table": 2200 },
     "sensors": { "cover.living_room_blinds": {"state": "open", "attributes": {"device_class": "blind", "current_position": 100, "supported_features": 15}, "name": "Persienner"}, "cover.bedroom_curtains": {"state": "closed", "attributes": {"device_class": "curtain", "current_position": 0, "supported_features": 15}, "name": "Gardiner"},"binary_sensor.front_door": {"device_class": "door", "state": "off", "name": "Ytterdörr"}, "lock.front_door": {"state": "locked", "name": "Ytterdörrens lås"}, "binary_sensor.bedroom_window": {"device_class": "window", "state": "on", "name": "Sovrumsfönster"}, "binary_sensor.living_room_motion": {"device_class": "motion", "state": "on", "name": "Rörelse vardagsrum"}, "binary_sensor.kitchen_smoke": {"device_class": "smoke", "state": "off", "name": "Brandvarnare"}, "sensor.kitchen_smoke_battery": {"device_class": "battery", "state": "9", "unit": "%", "name": "Brandvarnarens batteri"}, "binary_sensor.garage_door": {"device_class": "garage_door", "state": "on", "name": "Garageport"}},
     "colors": { "light.living_room_floor_lamp": [176, 96, 255], "light.garage_outdoor": [210, 225, 255] },

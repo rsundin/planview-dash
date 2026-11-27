@@ -23,7 +23,70 @@
 // without the cache, then load every file with ?v=<version> so updates show at once.
 // When adding a JavaScript file, add it to MODULES.
 (function () {
-  var MODULES = ['custom_components/planview_dash/frontend/js/main.js', 'custom_components/planview_dash/frontend/js/util.js', 'custom_components/planview_dash/frontend/js/store.js', 'custom_components/planview_dash/frontend/js/site.js', 'custom_components/planview_dash/frontend/js/entities.js', 'custom_components/planview_dash/frontend/js/i18n.js', 'custom_components/planview_dash/frontend/js/adapters/ha.js', 'custom_components/planview_dash/frontend/js/adapters/mock.js', 'custom_components/planview_dash/frontend/js/views/overview.js', 'custom_components/planview_dash/frontend/js/views/floorplan.js', 'custom_components/planview_dash/frontend/js/ui/panel.js', 'custom_components/planview_dash/frontend/js/ui/cards.js', 'custom_components/planview_dash/frontend/js/ui/settings.js', 'custom_components/planview_dash/frontend/js/ui/editor.js', 'custom_components/planview_dash/frontend/js/ui/setup.js', 'custom_components/planview_dash/frontend/js/areas.js', 'custom_components/planview_dash/frontend/js/ui/zoom.js', 'custom_components/planview_dash/frontend/js/glow.js', 'custom_components/planview_dash/frontend/js/status.js', 'custom_components/planview_dash/frontend/js/views/flow.js', 'custom_components/planview_dash/frontend/js/power.js', 'custom_components/planview_dash/frontend/js/ui/wall.js', 'custom_components/planview_dash/frontend/js/ui/report.js', 'custom_components/planview_dash/frontend/js/ui/shape.js', 'custom_components/planview_dash/frontend/js/ui/backup.js', 'custom_components/planview_dash/frontend/js/ui/conflict.js', 'custom_components/planview_dash/frontend/js/ui/setup/index.js', 'custom_components/planview_dash/frontend/js/ui/setup/helpers.js', 'custom_components/planview_dash/frontend/js/ui/setup/draw.js', 'custom_components/planview_dash/frontend/js/ui/setup/quick.js', 'custom_components/planview_dash/frontend/js/ui/setup/basics.js', 'custom_components/planview_dash/frontend/js/ui/setup/overview.js', 'custom_components/planview_dash/frontend/js/ui/setup/plans.js', 'custom_components/planview_dash/frontend/js/ui/setup/energy.js', 'custom_components/planview_dash/frontend/js/ui/setup/buttons.js', 'custom_components/planview_dash/frontend/js/ui/setup/wall.js', 'custom_components/planview_dash/frontend/js/ui/setup/lights.js', 'custom_components/planview_dash/frontend/js/ui/lights.js', 'custom_components/planview_dash/frontend/js/ui/camera.js', 'custom_components/planview_dash/frontend/js/calls.js'];
+  var MODULES = ['custom_components/planview_dash/frontend/js/main.js', 'custom_components/planview_dash/frontend/js/util.js', 'custom_components/planview_dash/frontend/js/store.js', 'custom_components/planview_dash/frontend/js/site.js', 'custom_components/planview_dash/frontend/js/entities.js', 'custom_components/planview_dash/frontend/js/i18n.js', 'custom_components/planview_dash/frontend/js/adapters/ha.js', 'custom_components/planview_dash/frontend/js/adapters/mock.js', 'custom_components/planview_dash/frontend/js/views/overview.js', 'custom_components/planview_dash/frontend/js/views/floorplan.js', 'custom_components/planview_dash/frontend/js/ui/panel.js', 'custom_components/planview_dash/frontend/js/ui/cards.js', 'custom_components/planview_dash/frontend/js/ui/settings.js', 'custom_components/planview_dash/frontend/js/ui/editor.js', 'custom_components/planview_dash/frontend/js/ui/setup.js', 'custom_components/planview_dash/frontend/js/areas.js', 'custom_components/planview_dash/frontend/js/ui/zoom.js', 'custom_components/planview_dash/frontend/js/glow.js', 'custom_components/planview_dash/frontend/js/status.js', 'custom_components/planview_dash/frontend/js/views/flow.js', 'custom_components/planview_dash/frontend/js/power.js', 'custom_components/planview_dash/frontend/js/ui/wall.js', 'custom_components/planview_dash/frontend/js/ui/report.js', 'custom_components/planview_dash/frontend/js/ui/shape.js', 'custom_components/planview_dash/frontend/js/ui/backup.js', 'custom_components/planview_dash/frontend/js/ui/conflict.js', 'custom_components/planview_dash/frontend/js/ui/setup/index.js', 'custom_components/planview_dash/frontend/js/ui/setup/helpers.js', 'custom_components/planview_dash/frontend/js/ui/setup/draw.js', 'custom_components/planview_dash/frontend/js/ui/setup/quick.js', 'custom_components/planview_dash/frontend/js/ui/setup/basics.js', 'custom_components/planview_dash/frontend/js/ui/setup/overview.js', 'custom_components/planview_dash/frontend/js/ui/setup/plans.js', 'custom_components/planview_dash/frontend/js/ui/setup/energy.js', 'custom_components/planview_dash/frontend/js/ui/setup/buttons.js', 'custom_components/planview_dash/frontend/js/ui/setup/wall.js', 'custom_components/planview_dash/frontend/js/ui/setup/lights.js', 'custom_components/planview_dash/frontend/js/ui/lights.js', 'custom_components/planview_dash/frontend/js/ui/camera.js', <!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PlanView Dash</title>
+<!-- Add to home screen on iPad/Android: opens full screen like an app -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b1512">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PlanView Dash">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+</head>
+<!-- Default object when no ?site= is given. Change to your own site id. -->
+<body data-default-site="example-house">
+<div id="app"></div>
+<script>
+// Home Assistant serves /local/ files with a 31-day browser cache, so an updated
+// dashboard would keep running old code. Read the version from version.json
+// without the cache, then load every file with ?v=<version> so updates show at once.
+// When adding a JavaScript file, add it to MODULES.
+(function () {
+  var MODULES = ['custom_components/planview_dash/frontend/js/main.js', 'custom_components/planview_dash/frontend/js/util.js', 'custom_components/planview_dash/frontend/js/store.js', 'custom_components/planview_dash/frontend/js/site.js', 'custom_components/planview_dash/frontend/js/entities.js', 'custom_components/planview_dash/frontend/js/i18n.js', 'custom_components/planview_dash/frontend/js/adapters/ha.js', 'custom_components/planview_dash/frontend/js/adapters/mock.js', 'custom_components/planview_dash/frontend/js/views/overview.js', 'custom_components/planview_dash/frontend/js/views/floorplan.js', 'custom_components/planview_dash/frontend/js/ui/panel.js', 'custom_components/planview_dash/frontend/js/ui/cards.js', 'custom_components/planview_dash/frontend/js/ui/settings.js', 'custom_components/planview_dash/frontend/js/ui/editor.js', 'custom_components/planview_dash/frontend/js/ui/setup.js', 'custom_components/planview_dash/frontend/js/areas.js', 'custom_components/planview_dash/frontend/js/ui/zoom.js', 'custom_components/planview_dash/frontend/js/glow.js', 'custom_components/planview_dash/frontend/js/status.js', 'custom_components/planview_dash/frontend/js/views/flow.js', 'custom_components/planview_dash/frontend/js/power.js', 'custom_components/planview_dash/frontend/js/ui/wall.js', 'custom_components/planview_dash/frontend/js/ui/report.js', 'custom_components/planview_dash/frontend/js/ui/shape.js', 'custom_components/planview_dash/frontend/js/ui/backup.js', 'custom_components/planview_dash/frontend/js/ui/conflict.js', 'custom_components/planview_dash/frontend/js/ui/setup/index.js', 'custom_components/planview_dash/frontend/js/ui/setup/helpers.js', 'custom_components/planview_dash/frontend/js/ui/setup/draw.js', 'custom_components/planview_dash/frontend/js/ui/setup/quick.js', 'custom_components/planview_dash/frontend/js/ui/setup/basics.js', 'custom_components/planview_dash/frontend/js/ui/setup/overview.js', 'custom_components/planview_dash/frontend/js/ui/setup/plans.js', 'custom_components/planview_dash/frontend/js/ui/setup/energy.js', 'custom_components/planview_dash/frontend/js/ui/setup/buttons.js', 'custom_components/planview_dash/frontend/js/ui/setup/wall.js', 'custom_components/planview_dash/frontend/js/ui/setup/lights.js', 'custom_components/planview_dash/frontend/js/ui/lights.js', 'custom_components/planview_dash/frontend/js/ui/camera.js', 'custom_components/planview_dash/frontend/js/calls.js', 'custom_components/planview_dash/frontend/js/media.js', 'custom_components/planview_dash/frontend/js/views/speakers.js', 'custom_components/planview_dash/frontend/js/ui/nowplaying.js'];
+  // The texts (js/i18n.js fetches them). English is always needed, so it is preloaded to
+  // arrive with the code; the site's own language is fetched once site.json has named it.
+  var PRELOAD = ['en'];
+  function boot(version) {
+    var q = '?v=' + encodeURIComponent(version);
+    window.PVD_VERSION = version;
+    var css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = 'custom_components/planview_dash/frontend/css/style.css' + q;
+    document.head.appendChild(css);
+    PRELOAD.forEach(function (code) {
+      var pre = document.createElement('link');
+      pre.rel = 'preload';
+      pre.as = 'fetch';
+      pre.crossOrigin = 'anonymous';
+      pre.href = 'custom_components/planview_dash/frontend/i18n/' + code + '.json' + q;
+      document.head.appendChild(pre);
+    });
+    var imports = {};
+    MODULES.forEach(function (m) { var u = new URL(m, location.href).href; imports[u] = u + q; });
+    var map = document.createElement('script');
+    map.type = 'importmap';
+    map.textContent = JSON.stringify({ imports: imports });
+    document.head.appendChild(map);
+    var main = document.createElement('script');
+    main.type = 'module';
+    main.src = 'custom_components/planview_dash/frontend/js/main.js' + q;
+    document.body.appendChild(main);
+  }
+  fetch('version.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : {}; })
+    .then(function (j) { boot(j.version || String(Date.now())); })
+    .catch(function () { boot(String(Date.now())); });
+})();
+</script>
+</body>
+</html>
+
   // The texts (js/i18n.js fetches them). English is always needed, so it is preloaded to
   // arrive with the code; the site's own language is fetched once site.json has named it.
   var PRELOAD = ['en'];

@@ -27,6 +27,7 @@ import { loadAreas, applyAreaNames, noAreas, linkByName, autoPlace } from './are
 import { assignSensors, warnings, warningIds, configEntities } from './status.js';
 import { nameOf as entityName } from './entities.js';
 import { guardCalls } from './calls.js';
+import { assignMedia } from './media.js';
 
 // The online demo sets data-demo on <body> (see .github/workflows/pages.yml).
 // Text size is a choice for the screen, not for one dashboard: one key for the whole device.
@@ -266,6 +267,8 @@ export async function start(opts) {
   site.autoPlaced = new Set(autoPlace(site, site.areas, store));
   // Doors, windows, locks, presence and alarms per room, from the room's area and site.json.
   assignSensors(site, store);
+  // Speakers and TVs: placed ones, and the rest of each linked room's area (media.js).
+  for (const id of assignMedia(site, store)) site.autoPlaced.add(id);
   lightsMenu?.refresh(); // the area lights are known now
 
   // ---- views
