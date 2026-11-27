@@ -29,10 +29,15 @@ What is planned next, roughly in order. Plans change; ideas and votes are welcom
 
 Every feature planned for 1.0 is in. Before 1.0.0, the work is making it last: a versioned `site.json` that every later 1.x opens unchanged, final names for actions and the card, lights, temperature and energy flow that cope with devices dropping out and different inverters, clear messages when Home Assistant refuses a command, and troubleshooting docs. That ships as **0.9.0, a beta**; 0.9.x then takes fixes only, and 1.0.0 follows once a release has run two weeks without one. New features wait until after 1.0. Details: [docs/roadmap/v1.md](docs/roadmap/v1.md).
 
+**The beta is open (0.9.0).** Try it on your home and report what does not work: the dashboard's **?** button fills in an [issue](https://github.com/rsundin/planview-dash/issues) without details about your home, and every report is answered within a few days. Problems with lights, temperature or energy flow come first.
+
 - **A versioned `site.json`**: every file says its format, older files are upgraded by themselves, and a file from a newer version is never saved over. Done in 0.8.36.
 - **Final public names**: the self-updater is gone (0.8.35), and every name you can type into Home Assistant (the YAML keys, the goodnight action and sensor, the card's options, the addresses) is listed as stable through 1.x. Done in 0.8.37.
 - **Lights, temperature and energy on any home**: a device that drops out shows as not responding instead of off, 0° or 0 kW; a command Home Assistant refuses says so on the screen; power in any of Home Assistant's units; both sign conventions for grid, battery and charger; homes in Fahrenheit. Done in 0.8.38.
 - **Docs for everyone**: a troubleshooting page, how upgrading works, and the promise for 1.x in the README. Done in 0.8.39.
+- **Cleanups before the freeze**: tested on Home Assistant 2026.11 with 2025.6 as the oldest supported, and a security pass over everything that writes. Done in 0.8.42.
+- **The 0.9.0 beta**: everything above in one release, bug fixes only from here. Open since 0.9.0.
+- **1.0.0**: the last 0.9.x, once it has run two weeks without a fix and has been checked on a wall tablet, an iPad, a phone and a clean install.
 
 ## Whole-house control
 

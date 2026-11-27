@@ -142,7 +142,7 @@ See [SECURITY.md](SECURITY.md) for how access is handled and how to report a pro
 
 ## Roadmap
 
-Next up: a 0.9 beta and then 1.0, with no new features until then. After 1.0: people and appliances on the picture, the house as a wall-screen screensaver, and a summer house mode. See [ROADMAP.md](ROADMAP.md).
+Now: the **beta for 1.0** (0.9.x), bug fixes only, so reports from your home count. 1.0 follows once a release has run two weeks without a fix. After 1.0: people and appliances on the picture, the house as a wall-screen screensaver, and a summer house mode. See [ROADMAP.md](ROADMAP.md).
 
 ## Help, questions and ideas
 

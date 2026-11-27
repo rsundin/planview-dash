@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.9.0
+
+**The beta for 1.0.** Everything planned for 1.0 is in, and from here 0.9.x takes bug fixes only, no new features. When a 0.9.x release has run two weeks without needing a fix, and the release checklist is done on real screens, the same code becomes 1.0.0. If something does not work on your home, now is the best time to say so: tap **?** in the dashboard, which fills in a [bug report](https://github.com/rsundin/planview-dash/issues/new?template=bug_report.yml) without details about your home. Every report gets an answer within a few days.
+
+No code changed since 0.8.42; this release gathers what the road to 1.0 brought:
+
+- **A dashboard set up now keeps working through 1.x** (0.8.36): `site.json` says which format it is, older files are upgraded by themselves, and a file from a newer version opens read-only instead of being saved over. See [docs/configuration.md](docs/configuration.md)
+- **Final names** (0.8.37): the YAML keys, the goodnight action and sensor, the card's options and the addresses are listed under [Stable in 1.x](docs/configuration.md#stable-in-1x) and stay the same. The self-updater is gone (0.8.35); updates come from the Marketplace
+- **Lights, temperature and energy flow on any home** (0.8.38): a device that drops out shows as not responding instead of off, 0° or 0 kW; a command Home Assistant refuses says so on the screen; power in W, kW or MW; both sign conventions for grid, battery and charger; homes in Fahrenheit
+- **Docs for everyone** (0.8.39): [Troubleshooting](docs/troubleshooting.md), [Upgrading](docs/setup.md#upgrading), and [What stays the same](README.md#what-stays-the-same) in the README
+- **Floor plan pictures darkened** so lit lamps stand out, adjustable per floor plan in the setup guide (0.8.40, 0.8.41)
+- **Tested on Home Assistant 2026.11**, oldest supported 2025.6, and a security pass over everything that writes (0.8.42)
+
+- Restart Home Assistant after updating, so it shows the new version, then reload the dashboard
+
 ## 0.8.42
 
 Last cleanups before the 1.0 beta (roadmap V5).
