@@ -20,9 +20,10 @@ Take these in order. L1, L2, H4 and L3 come before S5 because they are what the 
 12. **A1** Accessibility and large text
 13. **G1** Launch: show the project to the community
 14. **V1**–**V5** Hardening for 1.0, alongside G1 (agreed 18 November 2026, see [v1.md](v1.md)), then **V6** the 0.9.0 beta and **V7** the 1.0 checklist. No new features until 1.0.0 ships
-15. **F1** Summer house mode, then **F2** warm-up before arrival
-16. **W2** Screen profiles and guest mode, then **W1** the house as screensaver
-17. **H2**, **H1**, **H3**, **H5**, **H6**, **E1**, then the rest in file order
+15. **MU1** Speakers and screens in their rooms, then **MU2** now playing in the room panel (owner's choice 27 November 2026: music and the summer house take turns; tasks in [after-1.0.md](after-1.0.md) until they move here)
+16. **W2** Screen profiles and guest mode, then **F1** summer house mode and **F2** warm-up before arrival (F1 depends on W2)
+17. **MU3** The music view when the roof is lifted, then **MU4** the whole house playing
+18. **W1** The house as screensaver, then the rest of [after-1.0.md](after-1.0.md#proposed-order-after-10): 1.2 lights, temperature and energy, 1.3 people, doors and windows, vacuums
 
 ## How to work this plan
 

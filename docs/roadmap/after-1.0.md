@@ -1,6 +1,6 @@
 # After 1.0: proposed roadmap, November 2026
 
-A proposal, not yet the plan. It builds on [plan.md](plan.md) (milestones 1.1 to 1.3) and [research-2026-11.md](research-2026-11.md), with a third research pass from 27 November 2026 aimed at what to build once 1.0.0 ships (earliest 11 December 2026). Nothing here changes code before 1.0; the feature freeze holds. When the owner has decided, the chosen parts move into plan.md and ROADMAP.md, and this file stays as the record of why.
+A proposal; the order after 1.0 is decided (see below), the task details move into plan.md as each one starts. It builds on [plan.md](plan.md) (milestones 1.1 to 1.3) and [research-2026-11.md](research-2026-11.md), with a third research pass from 27 November 2026 aimed at what to build once 1.0.0 ships (earliest 11 December 2026). Nothing here changes code before 1.0; the feature freeze holds. When the owner has decided, the chosen parts move into plan.md and ROADMAP.md, and this file stays as the record of why.
 
 Sources are numbered [P1], [P2] … and listed at the end. [R…] points to research-2026-11.md.
 
@@ -96,7 +96,7 @@ The owner's top three get the next milestone.
 
 Unchanged from plan.md: W2 screen profiles and guest mode, W1 the house as screensaver (with what is playing), W3 family strip, W5 alarm panel; F1 summer house mode, F2 warm up before arrival, F3 both homes. Exploratory W4 and W6 stay exploratory.
 
-**Open question for the owner:** plan.md's Next up puts F1/F2 and W2/W1 first after 1.0. This proposal puts music first. Summer house mode is most useful in winter, which argues for keeping it first; music is the newer wish. Either order works technically: MU1–MU4 do not depend on W2 or F1.
+**Order decided by the owner (27 November 2026): take turns.** MU1–MU2 (now playing in the room) first, since they are small and bring music quickly. Then W2 and F1–F2 (the summer house is most useful in winter). Then MU3–MU4, the music view on top of MU2. Then W1, and 1.2 onward as above. plan.md's **Next up** list follows this order.
 
 ### Moved to "Later"
 
