@@ -46,28 +46,36 @@ Every feature planned for 1.0 is in. Before 1.0.0, the work is making it last: a
 - **Cameras on the picture** (moved up from 1.1): place them on the floor plan or the overview, tap for the live view. Done in 0.8.25.
 - **LED strips drawn as what they are**: a glowing line or surface on the plan and the picture, not a round spot. Done in 0.8.27.
 
-## 1.1: More of the home on the picture
+## 1.1: Music in the room, wall screens and the summer house
+
+In beta as **1.1.0-beta.1**, published as a pre-release beside 1.0.0. Try it on a test dashboard; 1.0.x stays the release for everyday use.
+
+- **Speakers and TVs in their rooms**: found through the room's area, a soft pulse in the album art's colour while one plays, a glow round a TV that is on. Placement mode never nags about them. In 1.1.0-beta.1.
+- **Now playing in the room panel**: artwork, play/pause, previous and next, volume, source and favourites, only what each player can do. In 1.1.0-beta.1.
+- **The music view on the floor plan**: tap a room to play or pause, add rooms to the group or move the music by dragging, with Music Assistant where it is there; group volume and per room. In 1.1.0-beta.1.
+- **The whole house playing**: what plays where in the header, with Pause all; goodnight can pause the music and turn off the TVs. In 1.1.0-beta.1.
+- **Screen profiles and guest mode** per wall screen (moved up from 1.2). In 1.1.0-beta.1.
+- **The closed house** for a summer house, with frost and damp warnings, and **warm up before arrival** (moved up from 1.3). In 1.1.0-beta.1.
+- **The house as screensaver** with clock, weather, the next event, warnings and what is playing (moved up from 1.2). A photo-frame mode comes later. In 1.1.0-beta.1.
+
+## 1.2: More of the home on the picture
 
 - **People in rooms**, from person entities and room presence sensors (off by default).
 - **Doors and windows where they are**, opening on the plan and the picture.
-- **Media and appliances**: what is playing, and when the washing machine is done.
+- **Appliances**: when the washing machine is done.
 - **Power per room** as an energy view of the floor plan.
 - **Humidity and CO₂** as alternatives to the temperature tint.
 - **Solar forecast** beside the live flow, a **car charging plan** from the cheapest hours, and an optional **capacity peak** tracker for grid companies that charge by peak.
 
-## 1.2: Wall screens as an ambient display
+## 1.3: Wall screens
 
-- **The house as screensaver** with clock, weather and the next event.
-- **Screen profiles and guest mode** per wall screen.
 - **Family strip**: calendar, to-do, waste collection.
 - **Voice from the wall** through Assist (exploratory).
 - **Alarm panel** state, with arming off by default.
 - **Paper mode** for e-ink screens (exploratory).
 
-## 1.3: The summer house and both homes
+## Later: both homes
 
-- **Summer house mode**: when the house is closed, the overview leads with frost, damp, leaks, locks, power and the last visit.
-- **Warm up before arrival**: heating starts in time to be warm when you get there.
 - **Both homes at a glance**, with warnings from each (exploratory).
 
 ## Later

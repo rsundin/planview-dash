@@ -64,6 +64,10 @@
           "name": "Suorita sen jälkeen",
           "description": "Skripti, joka suoritetaan, kun valot sammuvat, esimerkiksi ovien lukitsemiseksi."
         },
+        "media_player": {
+          "name": "Musiikki ja televisiot",
+          "description": "Soivat kaiuttimet keskeytetään ja televisiot sammutetaan, kun aika on kulunut."
+        },
         "cancel": {
           "name": "Peru",
           "description": "Pysäytä käynnissä oleva lähtölaskenta."

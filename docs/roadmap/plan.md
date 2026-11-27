@@ -20,9 +20,10 @@ Take these in order. L1, L2, H4 and L3 come before S5 because they are what the 
 12. **A1** Accessibility and large text
 13. **G1** Launch: show the project to the community
 14. **V1**–**V5** Hardening for 1.0, alongside G1 (agreed 18 November 2026, see [v1.md](v1.md)), then **V6** the 0.9.0 beta and **V7** the 1.0 checklist. No new features until 1.0.0 ships
-15. **F1** Summer house mode, then **F2** warm-up before arrival
-16. **W2** Screen profiles and guest mode, then **W1** the house as screensaver
-17. **H2**, **H1**, **H3**, **H5**, **H6**, **E1**, then the rest in file order
+15. Done in 1.1.0-beta.1: **MU1** Speakers and screens in their rooms, then **MU2** now playing in the room panel (owner's choice 27 November 2026: music and the summer house take turns; tasks in [after-1.0.md](after-1.0.md) until they move here)
+16. Done in 1.1.0-beta.1: **W2** Screen profiles and guest mode, then **F1** summer house mode and **F2** warm-up before arrival (F1 depends on W2)
+17. Done in 1.1.0-beta.1: **MU3** The music view when the roof is lifted, then **MU4** the whole house playing
+18. Done in 1.1.0-beta.1 (photo frame later): **W1** The house as screensaver, then the rest of [after-1.0.md](after-1.0.md#proposed-order-after-10): 1.2 lights, temperature and energy, 1.3 people, doors and windows, vacuums
 
 ## How to work this plan
 
@@ -383,7 +384,7 @@ Competitors show people, openings, media, appliances, cameras and power where th
 
 ## 1.2: Wall screens as an ambient display
 
-### W1: The house as screensaver. Status: todo. Size: M
+### W1: The house as screensaver. Status: done (v1.1.0-beta.1). Size: M
 - **Why:** Screensavers with clock, weather or photos are the most common wall-screen feature [R17][R18]. Our picture of the house, with dusk, weather, lamps and energy flow, is a better one.
 - **What:**
   - After the idle time in kiosk mode, an ambient mode shows the overview full screen: big clock, outdoor temperature, the next calendar event (optional `calendar.*`), and warnings.
@@ -392,7 +393,7 @@ Competitors show people, openings, media, appliances, cameras and power where th
   - Optional photo-frame mode cycling a media source folder, with the house returning every few pictures. Photo frames are one of the features that set ready-made dashboard apps apart [R30].
 - **Done when:** tests cover entering and leaving ambient mode, warnings shown in it, and light mode without animation.
 
-### W2: Screen profiles and guest mode. Status: todo. Size: M
+### W2: Screen profiles and guest mode. Status: done (v1.1.0-beta.1). Size: M
 - **Why:** Tablets that show only their own floor work well [R21]. Floor3DX limits locks, garage doors and alarms for guests [R7]. Guest access is missing in most dashboard apps [R30], so this sets PlanView Dash apart.
 - **What:**
   - Named screen profiles in the guide (for example "Hall", "Kitchen", "Guest room"), chosen with `?screen=hall` or on the device.
@@ -422,7 +423,7 @@ Competitors show people, openings, media, appliances, cameras and power where th
 
 The owner's own case: a summer house watched from the apartment, frost and leaks in winter, warm it up before arriving. Holiday-home monitoring is about frost, humidity, intrusion and history [R38].
 
-### F1: Summer house mode. Status: todo. Size: M. Depends: W2
+### F1: Summer house mode. Status: done (v1.1.0-beta.1). Size: M. Depends: W2
 - **What:**
   - A **Closed house** state for a dashboard (a switch in the header for admins, or following an `input_boolean` or HA's away state).
   - While closed, the overview leads with what matters when nobody is there: lowest indoor temperature and where, heating mode (frost or comfort), humidity, leaks and smoke, doors and locks, power and connectivity (the last time Home Assistant heard from key devices), and the last time someone was there (from presence or doors).
@@ -430,7 +431,7 @@ The owner's own case: a summer house watched from the apartment, frost and leaks
   - The lights card and scenes step back.
 - **Done when:** tests on the example house cover closed and open states, the frost warning, and the "last visit" text.
 
-### F2: Warm up before arrival. Status: todo. Size: S. Depends: F1
+### F2: Warm up before arrival. Status: done (v1.1.0-beta.1). Size: S. Depends: F1
 - **What:**
   - An **Arriving** action: choose a time, and the dashboard sets the heating to comfort early enough to reach the target, estimated from the rooms' recent heating rate in history (shown as "Start heating at 13:40 to reach 21° by 18:00").
   - It runs as a Home Assistant automation or script that the guide creates or points to. The dashboard keeps no timers of its own.

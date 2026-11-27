@@ -27,6 +27,13 @@ import { loadAreas, applyAreaNames, noAreas, linkByName, autoPlace } from './are
 import { assignSensors, warnings, warningIds, configEntities } from './status.js';
 import { nameOf as entityName } from './entities.js';
 import { guardCalls } from './calls.js';
+import { assignMedia } from './media.js';
+import { currentScreen, isGuest, guestMayCall, hideRooms, startView } from './screens.js';
+import { humidityRooms } from './closed.js';
+import { createClosedChip } from './ui/closed.js';
+import { createMusic } from './views/music.js';
+import { musicOn } from './media.js';
+import { createPlayingChip } from './ui/playing.js';
 
 // The online demo sets data-demo on <body> (see .github/workflows/pages.yml).
 // Text size is a choice for the screen, not for one dashboard: one key for the whole device.
@@ -92,6 +99,12 @@ export async function start(opts) {
   await Promise.all([english, loadLanguage(site.language)]);
   if (run.signal.aborted) return;
   setLanguage(site.language);
+  // This device's screen profile (screens.js): its start view, and guest mode.
+  const screen = embed ? null : currentScreen(site);
+  const guest = isGuest(screen);
+  document.body.classList.toggle('is-guest', guest);
+  // A guest screen has no goodnight: it turns off the whole house.
+  if (guest) site.goodnight = { ...(site.goodnight ?? {}), enabled: false };
   // Light mode for older tablets: no blur, blending or animation (see ui/wall.js).
   document.body.classList.toggle('is-lite', liteMode(site));
   document.title = `${site.name} · PlanView Dash`;
@@ -100,7 +113,9 @@ export async function start(opts) {
   // this browser (when served from HA), otherwise test data. ?mock forces test data.
   // The setup guide needs to save the config and upload pictures (panel, admins).
   // A site.json from a newer PlanView Dash is shown but never saved over (site.js tooNew).
-  const canSetup = !embed && !site.tooNew && !!(opts.saveSite && opts.uploadFile && opts.navigateEdit);
+  const canSetup = !embed && !guest && !site.tooNew && !!(opts.saveSite && opts.uploadFile && opts.navigateEdit);
+  // Placement mode, from the header: admins in the panel, anyone on the standalone page; never a guest.
+  const navigateEdit = guest ? null : opts.navigateEdit;
   // Saving names the version of site.json the changes build on. If someone else (or
   // another tab) has saved since, nothing is written until the user has chosen: save
   // anyway, with the other version kept as a restore point, or cancel.
@@ -127,7 +142,9 @@ export async function start(opts) {
   }
   const store = new Store();
   // A call Home Assistant refuses is said on the screen and announced (calls.js).
-  adapter = guardCalls(adapter, { store, site, say: (text) => toast(text, true) });
+  // A guest screen leaves locks, alarms, garage doors and gates alone (screens.js).
+  adapter = guardCalls(adapter, { store, site, say: (text) => toast(text, true), allow: guest ? (d, s, data) => guestMayCall(d, s, data, store) : null });
+  run.adapter = adapter; // read by the browser tests
 
   // ---- header
   const status = el('span', { class: 'pill', role: 'status' });
@@ -196,14 +213,21 @@ export async function start(opts) {
   const lightsMenu = !embed && !editing && (allLightsOn(site) || goodnightOn(site))
     ? createLightsMenu({ site, store, adapter, signal: run.signal, onGoodnightError: goodnight?.failed }) : null;
   press(clock, null, () => { if (document.body.classList.contains('is-kiosk')) setKiosk(false); }, 2000);
+  // Who may switch the house itself (the closed house): admins in the panel, anyone on the
+  // standalone page, never a guest screen.
+  const admin = !guest && (opts.navigateEdit ? true : source !== 'panel');
+  // The closed house (summer house mode, ui/closed.js): its state, a switch for admins.
+  const closedChip = embed || editing ? null : createClosedChip({ site, store, adapter, admin });
+  // What plays anywhere in the house, with pause (ui/playing.js).
+  const playingChip = embed || editing || !musicOn(site) ? null : createPlayingChip({ site, store, adapter, signal: run.signal });
   const header = el('header', { class: 'top' },
     el('div', { class: 'brand' }, el('p', { class: 'eyebrow' }, 'PlanView Dash'), el('h1', {}, site.name)),
     viewNav,
-    el('div', { class: 'top-actions' }, lightsMenu?.el, clock, source === 'panel' ? null : status, site.overview || site.floorplans.length ? nightBtn : null, textBtn, editing ? null : kioskBtn,
-      opts.navigateEdit && !editing ? el('button', { class: 'chip', type: 'button', onclick: () => opts.navigateEdit(true) }, t('app.edit')) : null,
+    el('div', { class: 'top-actions' }, closedChip, playingChip?.el, lightsMenu?.el, clock, source === 'panel' ? null : status, site.overview || site.floorplans.length ? nightBtn : null, textBtn, editing ? null : kioskBtn,
+      navigateEdit && !editing ? el('button', { class: 'chip', type: 'button', onclick: () => navigateEdit(true) }, t('app.edit')) : null,
       canSetup && !editing ? el('button', { class: 'chip', type: 'button', onclick: () => openSetup() }, t('app.setup')) : null,
-      source === 'panel' || DEMO ? null : el('button', { class: 'chip', type: 'button', onclick: () => settings.open() }, t('app.connection')),
-      helpBtn));
+      source === 'panel' || DEMO || guest ? null : el('button', { class: 'chip', type: 'button', onclick: () => settings.open() }, t('app.connection')),
+      guest ? null : helpBtn));
   if (!embed) keepAwake(run.signal); // a card does not keep the whole screen on
 
   // ---- stage
@@ -215,9 +239,11 @@ export async function start(opts) {
   const hint = el('p', { class: 'stage-hint' }, withZoomHint(site.overview
     ? t('app.hintOverview')
     : t('app.hintPlan')));
-  const stageWrap = el('div', { class: 'stage-wrap' }, stage, backBtn, hint);
+  // The music view on the floor plans (views/music.js); not in placement mode.
+  const music = !editing && musicOn(site) ? createMusic({ site, store, adapter }) : null;
+  const stageWrap = el('div', { class: 'stage-wrap' }, stage, backBtn, music?.toggle, music?.bar, hint);
   if (!site.overview) stage.classList.add('no-ov');
-  const panel = createPanel({ site, store, adapter });
+  const panel = createPanel({ site, store, adapter, musicExtra: music ? (room) => music.panelExtra(room) : null });
   const side = el('div');
   const main = el('main', { class: 'layout' }, stageWrap, side);
   const alerts = el('div', { class: 'alerts', hidden: true, role: 'status', 'aria-live': 'polite' });
@@ -266,7 +292,14 @@ export async function start(opts) {
   site.autoPlaced = new Set(autoPlace(site, site.areas, store));
   // Doors, windows, locks, presence and alarms per room, from the room's area and site.json.
   assignSensors(site, store);
+  // Speakers and TVs: placed ones, and the rest of each linked room's area (media.js).
+  for (const id of assignMedia(site, store)) site.autoPlaced.add(id);
+  // Rooms this screen does not show (screens.js).
+  hideRooms(site, screen);
+  // Humidity per room, for the closed house's damp warning (closed.js).
+  site.index.humidity = site.closed_house ? humidityRooms(site, store).map((x) => x.id) : [];
   lightsMenu?.refresh(); // the area lights are known now
+  playingChip?.refresh(); // and the speakers
 
   // ---- views
   let view = null;
@@ -293,7 +326,7 @@ export async function start(opts) {
     if (plans.has(planId)) return plans.get(planId);
     const plan = planById.get(planId);
     if (!plan) return null;
-    const fp = createFloorplan({ site, plan, store, adapter, onRoom: (room) => { panel.open(room); fp.select(room.id); } });
+    const fp = createFloorplan({ site, plan, store, adapter, music, onRoom: (room) => { panel.open(room); fp.select(room.id); } });
     plans.set(plan.id, fp);
     zoom.layer.append(fp.el);
     editor?.attach(fp.svg, { label: t('app.editorPlan', { name: plan.name, unit: plan.unit || 'mm' }), round: plan.unit === 'px' ? 1 : 10, plan });
@@ -301,15 +334,15 @@ export async function start(opts) {
   };
   if (editor) site.floorplans.forEach((p) => buildPlan(p.id));
   panel.el.addEventListener('close', () => plans.forEach((p) => p.select(null)));
-  side.replaceWith(createSide({ site, store, adapter, openRoom }));
+  side.replaceWith(createSide({ site, store, adapter, openRoom, admin }));
 
   // ---- warnings: alarms and open windows open their room; the rest unfold a list
   const nameOf = (id) => entityName(id, { store, site }, site.index.names.get(id) ?? id);
   // Rebuilt only when the warnings themselves change, not on every lamp or temperature.
   let shownWarnings = null;
   // "Show in placement mode" under the missing devices: placement mode opens with only them listed.
-  const openEdit = opts.navigateEdit ? () => opts.navigateEdit(true)
-    : source === 'panel' ? null : () => { location.hash = 'edit'; location.reload(); };
+  const openEdit = navigateEdit ? () => navigateEdit(true)
+    : source === 'panel' || guest ? null : () => { location.hash = 'edit'; location.reload(); };
   const actions = {
     missing: openEdit && !editing ? el('button', { class: 'chip alert-action', type: 'button', onclick: () => { storage.set(missingFilterKey(site.id), true); openEdit(); } }, t('warn.missingShow')) : null,
   };
@@ -347,6 +380,8 @@ export async function start(opts) {
     zoom.reset();
     viewNav.querySelectorAll('.tab').forEach((b) => b.setAttribute('aria-current', String(b.dataset.view === id)));
     stage.dataset.view = id;
+    // The Music switch shows on a plan with speakers in its rooms.
+    music?.show(id.startsWith('plan:') && !!plans.get(id.slice(5))?.hasMusic);
   }
 
   // A card set to one floor plan or room stays on that plan: no way back to the overview.
@@ -461,22 +496,52 @@ export async function start(opts) {
   // A card's view: a plan, or a room (its plan with the room open). One that no longer
   // exists falls back to the dashboard's own start view.
   const embedRoom = embed?.view?.startsWith('room:') ? site.index.rooms.get(embed.view.slice(5)) : null;
-  const embedPlan = embedRoom?.plan ?? (embed?.view?.startsWith('plan:') ? embed.view.slice(5) : null);
+  // view 'music': the first floor plan with a speaker, in the music view.
+  const musicPlan = embed?.view === 'music' && music
+    ? site.floorplans.find((p) => [...site.index.rooms.values()].some((r) => r.plan === p.id && r.media?.length && !r.hidden))?.id ?? null
+    : null;
+  const embedPlan = embedRoom?.plan ?? musicPlan ?? (embed?.view?.startsWith('plan:') ? embed.view.slice(5) : null);
+  // A screen profile's start view (screens.js), where it starts and goes back to when idle.
+  const screenStart = startView(site, screen);
+  const showStart = async () => {
+    if (screenStart?.plan) { if (overview) showOverview(); await showPlan(screenStart.plan); return; }
+    if (screenStart?.room) {
+      if (overview) showOverview();
+      if (screenStart.room.plan) await showPlan(screenStart.room.plan, screenStart.room.id); else panel.open(screenStart.room);
+      return;
+    }
+    if (overview) showOverview(); else if (site.floorplans[0]) await showPlan(site.floorplans[0].id);
+  };
   if (embedPlan && planById.has(embedPlan)) { pinned = true; await showPlan(embedPlan, embedRoom?.id); }
   else if (resume?.startsWith('plan:') && planById.has(resume.slice(5))) { if (overview) showOverview(); await showPlan(resume.slice(5)); }
+  else if (screenStart) await showStart();
   else if (overview) showOverview();
   else showPlan(site.floorplans[0]?.id);
   if (embedRoom && !embedRoom.plan) panel.open(embedRoom);
+  if (musicPlan && music) music.setOn(true);
 
   // Wall screens: the doorbell camera, and back to the start view (dimmed at night) when idle.
   const home = () => {
     settings.el.hidden = true;
     report.close();
     panel.close();
-    if (overview) showOverview(); else if (site.floorplans[0]) showPlan(site.floorplans[0].id);
+    showStart();
     zoom.reset();
   };
-  wall = editing || embed ? null : createWall({ site, store, adapter, goHome: home, kiosk: () => document.body.classList.contains('is-kiosk'), enterKiosk: () => setKiosk(true, true), signal: run.signal });
+  // The house as screensaver (ui/ambient.js): the overview full screen, filling it.
+  const ambientView = (on) => {
+    if (on) {
+      settings.el.hidden = true;
+      report.close();
+      panel.close();
+      zoom.reset();
+      if (overview) { showOverview(); overview.setFit('slice'); } else showStart();
+    } else applyFit();
+  };
+  wall = editing || embed ? null : createWall({ site, store, adapter, goHome: home, screen,
+    restart: opts.reload ?? (() => location.reload()), kiosk: () => document.body.classList.contains('is-kiosk'), enterKiosk: () => setKiosk(true, true), signal: run.signal,
+    warnings: () => warnings(site, store, nameOf), onAmbient: ambientView });
+  run.wall = wall; // read by the browser tests
   // Test data: ?ring rings the first doorbell a moment after start.
   const bell = [].concat(site.wall_screen?.doorbell ?? [])[0];
   if (wall && adapter.kind === 'mock' && params.has('ring') && bell?.entity) {

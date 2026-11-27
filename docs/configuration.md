@@ -24,7 +24,10 @@ Everything except `name` and at least one floor plan is optional. A card whose e
 | `scenes` | list | Buttons for scenes or scripts: `{ "entity": "script.we_are_here", "name": "We're here" }` |
 | `all_lights` | object | The **All on** and **All off** buttons in the header and the lights card. They switch every light on the dashboard, including the ones found in linked areas. `{ "exclude": ["light.garden"] }` leaves lights out (garden lights on a schedule, a night light); `{ "enabled": false }` hides the buttons. All on takes one tap, all off two |
 | `goodnight` | object | The **Goodnight** button beside All on and All off: the lights stay as they are for `minutes` (default 5), then the same lights as All off turn off and the script in `then` runs, if set. `{ "minutes": 5, "then": "script.lock_up" }`; `{ "enabled": false }` hides the button. See [Goodnight](#goodnight) |
-| `wall_screen` | object | Doorbell camera, idle mode and light mode for wall screens, see [Wall screens](#wall-screens) |
+| `wall_screen` | object | Doorbell camera, idle mode, the house as screensaver and light mode for wall screens, see [Wall screens](#wall-screens) |
+| `music` | object | Speakers and TVs (1.1). On by default. `{ "enabled": false }` turns them off everywhere; `{ "exclude": ["media_player.kitchen_group"] }` leaves players out. See [Speakers and TVs](#speakers-and-tvs) |
+| `screens` | list | Screen profiles for wall screens and tablets, with guest mode (1.1). See [Screen profiles and guest mode](#screen-profiles-and-guest-mode) |
+| `closed_house` | object | The closed house, for a summer house watched from far away (1.1). See [The closed house](#the-closed-house) |
 
 ### Names
 
@@ -134,7 +137,8 @@ Each panel outline glows green while the panels produce, stronger as production 
       "climate": "climate.living_room",
       "temperature": "sensor.living_room_temperature",
       "lights": [{ "entity": "light.living_room_ceiling", "name": "Ceiling light", "at": [11650, 8600] }],
-      "sensors": ["binary_sensor.living_room_window", "binary_sensor.living_room_motion"]
+      "sensors": ["binary_sensor.living_room_window", "binary_sensor.living_room_motion"],
+      "media": [{ "entity": "media_player.living_room", "at": [12400, 7200] }]
     }
   ]
 }
@@ -199,6 +203,78 @@ A row above the picture shows, most serious first: alarms (smoke, gas, carbon mo
 - `"energy_flow": false` and `"weather_effects": false` turn them off.
 - With the header set to Auto, the day picture fades into the evening picture from 3° above the horizon to 6° below it (`sun.sun` elevation). The `weather` entity adds a light veil for cloud, fog, rain or snow.
 
+## Speakers and TVs
+
+New in 1.1. A room's speakers and TVs (`media_player.*`) are the ones in its `media` list plus, for a room linked to a Home Assistant area, every media player in that area. They need no setup: a linked room shows its players by themselves, in the corner farthest from its lamps. Placement mode lists them folded under **Speakers and TVs** and never counts an unplaced one as missing; tapping one onto the plan saves its spot in `media`.
+
+- A room pulses softly while one of its speakers plays, tinted from the album art. A TV that is on glows. Light mode keeps the pulse still.
+- The room panel has **Now playing** for each player: artwork, title and artist, previous, play/pause and next, volume and mute, the source, and a short list of favourites from the player's media browser. A control is only shown when the player says it supports it (`supported_features`).
+- **Music** on a floor plan switches to the music view: tap a room to play or pause it, **+** to play the same music there too, **−** to take the room out of the group, or drag from a playing room to another. The bar under the plan sets whether a drag joins or moves the music, and holds the group's volume and each room's. Joining uses `media_player.join`. Moving uses Music Assistant's `music_assistant.transfer_queue` where both players come from Music Assistant, otherwise a join followed by `media_player.unjoin`. A player that cannot group gets no **+**.
+- While anything plays, the header shows what and where ("Kitchen + Living room: Morning jazz"); a tap lists every group with **Pause** and **Pause all**.
+- `"music": { "enabled": false }` turns all of it off; `"exclude"` leaves single players out, such as a group entity that duplicates its members. Players hidden in Home Assistant or marked as diagnostic are left out by themselves.
+- Album art comes only through Home Assistant's own proxy, never straight from a music service.
+
+## Screen profiles and guest mode
+
+New in 1.1. A screen profile says what one wall screen or tablet shows.
+
+```json
+"screens": [
+  { "id": "hall", "name": "Hall", "start": "plan:house", "back_after": 60 },
+  { "id": "guest", "name": "Guest room", "start": "room:bedroom_2", "guest": true, "hide_rooms": ["office"] }
+]
+```
+
+| Field | Description |
+| --- | --- |
+| `id`, `name` | The profile's id (for the address) and its name |
+| `start` | `"overview"`, `"plan:<id>"` or `"room:<id>"`: where the screen starts, and goes back to when idle |
+| `back_after` | Seconds without touch before going back to `start`. Default: `wall_screen.idle.back_after` |
+| `guest` | Guest mode: no placement mode, setup guide, connection settings or problem report, no cameras or goodnight, and locks, alarms, garage doors and gates are read-only |
+| `hide_rooms` | Rooms this screen does not show |
+
+A device picks its profile with `?screen=<id>` on the address (`?screen=none` clears it) or under the **Kiosk mode** button, and keeps it per dashboard. On a guest screen that choice needs a three-second press, so a guest does not change it by mistake. Guest mode is a convenience on a shared tablet, not a security boundary: anyone with a Home Assistant login on the device still has that user's rights. The setup guide's **Screens** step adds and edits profiles.
+
+## The closed house
+
+New in 1.1. For a summer house watched from far away.
+
+```json
+"closed_house": {
+  "entity": "input_boolean.summer_house_closed",
+  "frost": 5,
+  "damp": 70,
+  "key": ["climate.hall", "sensor.cellar_temperature"],
+  "arrive": { "helper": "input_datetime.warm_up_start", "target": 21 }
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `entity` | The house is closed while this is on. Administrators get a **House open / House closed** button in the header that switches it |
+| `away` | `true` instead of `entity`: closed while nobody (`person.*`) is home |
+| `frost` | A room colder than this is a frost warning. Default 5 (in Home Assistant's temperature unit) |
+| `damp` | Humidity above this, in a room's area or in `key`, is a damp warning. Default 70 % |
+| `key` | Devices to hear from: the card says when Home Assistant last heard from each |
+| `arrive` | Warm up before arrival: `helper` is an `input_datetime` the dashboard sets, `target` the temperature to reach (default 21) |
+
+While closed, a card leads with what matters when nobody is there: the coldest room, heating mode, humidity, leaks and smoke, open doors and unlocked locks, the key devices, and when someone was last there. Lights and scenes step back. Frost and damp warnings show whether the house is closed or not.
+
+**Arriving**: administrators pick when they arrive, and the card says when heating has to start to reach `target` in time. It learns how fast the house warms from the coldest room's history (falling back to 0.8 ° an hour) and sets `helper` to that time. An automation does the rest; the setup guide's **House** step shows one:
+
+```yaml
+alias: Warm up the summer house before arrival
+triggers:
+  - trigger: time
+    at: input_datetime.warm_up_start
+actions:
+  - action: climate.set_preset_mode
+    target:
+      area_id: summer_house
+    data:
+      preset_mode: comfort
+```
+
 ## Goodnight
 
 ```json
@@ -218,6 +294,8 @@ data:
   then: script.lock_up       # optional
 ```
 
+  `media_player: [media_player.kitchen, media_player.living_room_tv]` (1.1) also pauses those speakers when the countdown ends and turns off those TVs. The button sends every player on the dashboard when `"goodnight": { "media": true }` is set (the setup guide's **Buttons** step).
+
   `cancel: true` stops a countdown. Each dashboard has a timestamp sensor, `sensor.<site>_goodnight` (under the dashboard's device in **Settings → Devices & services**): while a countdown runs it holds the time the lights turn off, otherwise it is *unknown*. It is what the screens show, and automations can use it too. You can rename or hide it like any entity; the screens still find it.
 
 ## Wall screens
@@ -226,6 +304,7 @@ data:
 "wall_screen": {
   "doorbell": { "entity": "binary_sensor.doorbell", "camera": "camera.front_door", "name": "Front door", "seconds": 60 },
   "idle": { "back_after": 120, "dim_from": "22:00", "dim_to": "06:30", "dim": 0.85, "wake": ["binary_sensor.hallway_motion"] },
+  "ambient": { "after": 300, "calendar": "calendar.family" },
   "lite": false
 }
 ```
@@ -246,6 +325,8 @@ data:
 | `wake` | Motion or presence sensors that wake the dimmed screen when they turn on |
 
 A touch on the dimmed screen only wakes it; it does not switch what is under the finger. A doorbell ring also wakes it. A browser cannot turn the backlight off, so the screen is dimmed with a dark layer; for a fully dark screen at night use the tablet's own schedule or a kiosk browser such as Fully Kiosk Browser.
+
+**ambient** (1.1): the house as screensaver, only on a device in kiosk mode. After `after` seconds without touch (default: `idle.back_after`), the overview fills the screen with a big clock and the date, the outdoor temperature, the next event in `calendar` (a `calendar.*` entity, optional), up to three warnings and what is playing. There are no buttons: a touch goes back to the dashboard without switching anything. During the night hours the dim takes over. The text drifts slowly so nothing stays on the same pixels all day; light mode keeps it still. `outdoor` picks a temperature sensor instead of the `weather` entity. `"ambient": true` turns it on with the defaults. A photo-frame mode is planned for a later version.
 
 **lite**: `true` turns light mode on for every screen showing this dashboard: no blur, blending or animation, for older tablets that stutter. Lamp light is drawn without the soft wash on the facade. Each screen can also set light mode for itself under the **Kiosk mode** button: **Auto** (the default) follows `lite` and otherwise turns light mode on for devices with two cores or 2 GB of memory or less, while **On** and **Off** override both. `?lite` and `?lite=0` on the address set On and Off the same way; the device remembers it.
 
@@ -304,10 +385,10 @@ Everything you can type into Home Assistant, or into an address, keeps its name 
 | --- | --- |
 | Integration | domain `planview_dash` |
 | `configuration.yaml` | `planview_dash:` with `sites_dir` (the folder that holds the site folders; relative to the config folder, default `planview_dash/sites`) and `dashboards:`, a list of `site` (required: the folder name, letters, digits, `_` and `-`), `title` (default "PlanView Dash"), `icon` (default `mdi:home-lightbulb`), `url_path` (default the `site`) and `require_admin` (default `false`) |
-| Action | `planview_dash.goodnight` with `site`, `entity_id` (lights and switches), `minutes` (0 to 120, default 5), `then` (a script) and `cancel` (default `false`); see [Goodnight](#goodnight) |
+| Action | `planview_dash.goodnight` with `site`, `entity_id` (lights and switches), `minutes` (0 to 120, default 5), `then` (a script), `media_player` (speakers to pause and TVs to turn off, from 1.1) and `cancel` (default `false`); see [Goodnight](#goodnight) |
 | Entity | `sensor.<site>_goodnight` per dashboard (unique id `<site>_goodnight`): a timestamp while a countdown runs, otherwise *unknown*, with the attributes `planview_dash_site` and, while it runs, `minutes`. You can rename it; the screens find it by `planview_dash_site` |
-| Card | `type: custom:planview-dash-card` with `site`, `view` (`overview`, `plan:<floor plan id>` or `room:<room id>`; default `overview`) and `height` (pixels, 120 to 2000; leave out in a sections view) |
-| Addresses | `/<url_path>` for the dashboard, `/<url_path>/edit` for placement mode, `?kiosk` for kiosk mode, `?lite` and `?lite=0` for light mode on and off |
+| Card | `type: custom:planview-dash-card` with `site`, `view` (`overview`, `plan:<floor plan id>`, `room:<room id>`, or `music` from 1.1; default `overview`) and `height` (pixels, 120 to 2000; leave out in a sections view) |
+| Addresses | `/<url_path>` for the dashboard, `/<url_path>/edit` for placement mode, `?kiosk` for kiosk mode, `?lite` and `?lite=0` for light mode on and off, `?screen=<id>` and `?screen=none` for a screen profile (from 1.1) |
 | Files | `<config>/planview_dash/sites/<site>/` (or under `sites_dir`) with `site.json`, its restore points `site.json.1` to `site.json.10`, and the pictures it names. `site.json` follows the rule in [Format and compatibility](#format-and-compatibility) |
 
 Not part of the promise, because only the dashboard's own code uses them and they may change in any version: the web addresses under `/api/planview_dash/` and `/planview_dash/frontend/`, what is kept in the browser's storage, the page's elements and CSS classes, the layout of diagnostics and problem reports, what a dashboard added from the UI stores in its config entry (Home Assistant upgrades that itself), and `mock` below.

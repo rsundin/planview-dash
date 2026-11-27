@@ -105,7 +105,7 @@ Tick the scenes and scripts to show as buttons, and give them short names.
 
 **All on and all off** turns the **All on** and **All off** buttons on or off. They sit behind the lamp in the header (also on a wall screen in kiosk mode) and at the bottom of the lights card. Untick lights that the buttons should leave alone, such as garden lights on a schedule.
 
-**Goodnight** shows a button that leaves the lights on for a few minutes while you go to bed, then turns the same lights off. Set the minutes, and pick a script of your own to run when the lights go off (to lock up or turn the TV off) if you like.
+**Goodnight** shows a button that leaves the lights on for a few minutes while you go to bed, then turns the same lights off. Set the minutes, and pick a script of your own to run when the lights go off (to lock up or turn the TV off) if you like. From 1.1 it can also pause the music and turn off the TVs when the lights go off.
 
 ### Wall screen
 
@@ -113,7 +113,16 @@ All optional, for tablets and screens on the wall (see [configuration.md](config
 
 - **Doorbell**: the doorbell entity (a binary sensor, or an event or button entity) and its camera. When it rings, the dashboard shows the camera in a window that closes by itself.
 - **Idle mode**: how long without touch before a screen in kiosk mode goes back to the start, night hours when it dims, and the motion sensors that wake it.
+- **The house as screensaver** (1.1): after a while without touch, the overview fills the screen with a big clock, the outdoor temperature, the next event from a calendar you pick, warnings and what is playing. A touch goes back; at night the dimmed screen takes over.
 - **Light mode** for every screen; for one screen only, add `?lite` to its address.
+
+### Screens
+
+New in 1.1. Profiles for each wall screen or tablet: a name, where it starts (the overview, a floor plan or a room), and **Guest mode**, which hides placement, setup and cameras, keeps locks, alarms and garage doors read-only, and can hide chosen rooms. A device picks its profile under the **Kiosk mode** button, or with `?screen=<id>` on its address. See [configuration.md](configuration.md#screen-profiles-and-guest-mode).
+
+### Closed house
+
+New in 1.1, for a summer house. Say what tells the dashboard the house is closed (a helper switch, or that nobody is home), the frost and damp limits, and optionally a date and time helper for warming up before you arrive; the step shows an example automation to copy into Home Assistant. See [configuration.md](configuration.md#the-closed-house).
 
 ### Lights and heating
 
@@ -139,6 +148,10 @@ The last step, for administrators in the Home Assistant panel:
 - **Restore points**: every save keeps the version it replaced, up to the last 10 (`site.json.1` is the newest, up to `site.json.10`). Each is listed with when it was saved and how many floor plans and rooms it has; **Restore** makes it the current one, after you confirm. An import or a restore keeps the settings it replaced as a restore point too, so it can be undone the same way. Pictures are not part of a restore point.
 - **Two people editing**: if someone else, or another tab, has saved the dashboard since you opened the setup guide or placement mode, saving asks first. **Save anyway** replaces their version, which stays as a restore point; **Cancel** saves nothing and keeps your changes on screen.
 
+## Speakers and TVs
+
+New in 1.1, with nothing to set up: speakers and TVs in a room's Home Assistant area show up on the floor plan by themselves. Hold a room to open it and control them under **Now playing**, or tap **Music** on the floor plan to play music in more rooms at once, move it from room to room and set the volume per room. While something plays, the header says what and where. See [configuration.md](configuration.md#speakers-and-tvs).
+
 ## The card
 
 The picture also works as a card in any other Home Assistant dashboard: the overview, one floor plan or one room. The card comes with the integration, so there is nothing more to install. After an update that adds or changes it, reload the browser page once.
@@ -152,14 +165,14 @@ The same in YAML:
 ```yaml
 type: custom:planview-dash-card
 site: my-home          # the dashboard's folder name, as in step 2
-view: room:kitchen     # overview (default), plan:<floor plan id> or room:<room id>
+view: room:kitchen     # overview (default), plan:<floor plan id>, room:<room id> or music
 height: 400            # optional; not needed in a sections view
 ```
 
 Good to know:
 
 - The card shows only the picture: no header, energy cards, warnings or setup. Tapping a building opens its floor plan, tapping a room opens the room's panel inside the card, and lamps and heating work as in the dashboard.
-- A card for a floor plan or a room stays on that floor plan. A card for the overview of a dashboard without an overview picture starts on its first floor plan.
+- A card for a floor plan or a room stays on that floor plan. A card for `music` (1.1) opens the first floor plan with speakers, in the music view. A card for the overview of a dashboard without an overview picture starts on its first floor plan.
 - From Home Assistant 2026.6, picking a lamp or a thermostat in **Add card** suggests the room it is in, if the lamp is placed in a room or the room is linked to the lamp's area.
 - Night mode, pinch zoom and light mode for older tablets work as in the dashboard. Kiosk mode, idle mode and the doorbell camera belong to the dashboard itself and are not part of the card.
 - Everyone who can see the dashboard you put the card in sees the picture, also when the PlanView Dash dashboard itself is set to administrators only: that setting hides it from the sidebar, and the card is your choice to show it. Changing the setup stays with administrators, in the dashboard.

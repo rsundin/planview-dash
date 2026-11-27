@@ -4,8 +4,9 @@ import { el, sv, fmt, clamp, num } from '../util.js';
 import { isOn, level, roomTemp, climate, nameOf, noReading, fahrenheit } from '../entities.js';
 import { t, has } from '../i18n.js';
 import { kindOf, isOpen, isUnlocked, isAlarm, isDead, statusIds, isClosedCover } from '../status.js';
+import { nowPlayingSection } from './nowplaying.js';
 
-export function createPanel({ site, store, adapter }) {
+export function createPanel({ site, store, adapter, musicExtra = null }) {
   const body = el('div', { class: 'panel-body' });
   const title = el('h2', { class: 'panel-title' });
   const closeBtn = el('button', { class: 'icon-btn', type: 'button', 'aria-label': t('panel.close'), onclick: () => close() }, '×');
@@ -30,6 +31,7 @@ export function createPanel({ site, store, adapter }) {
   }
 
   function open(room) {
+    if (!room || room.hidden) return; // a room this screen does not show (screens.js)
     const from = root.contains(document.activeElement) ? opener : document.activeElement;
     close();
     opener = from;
@@ -45,9 +47,11 @@ export function createPanel({ site, store, adapter }) {
     }
     if (room.climate || room.temperature) body.append(climateSection(room));
     if (room.lights.length) body.append(lightsSection(room));
+    // Speakers and TVs in the room (ui/nowplaying.js).
+    if (room.media?.length) body.append(nowPlayingSection({ room, site, store, adapter, extra: musicExtra?.(room), watch: (ids, fn) => unwatch.push(store.watch(ids, fn)) }));
     if (room.status?.cover.length) body.append(coversSection(room));
     if (sensorIds(room).length) body.append(statusSection(room));
-    if (!room.climate && !room.temperature && !room.lights.length && !statusIds(room).length) {
+    if (!room.climate && !room.temperature && !room.lights.length && !statusIds(room).length && !room.media?.length) {
       body.append(el('p', { class: 'muted' }, t('panel.empty')));
     }
     root.classList.add('is-open');

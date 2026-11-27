@@ -69,6 +69,7 @@ export function buttonsStep(ctx) {
       if (g.enabled !== false) delete g.enabled;
       if (g.minutes == null || g.minutes === 5) delete g.minutes;
       if (!g.then) delete g.then;
+      if (!g.media) delete g.media;
       if (!Object.keys(g).length) delete cfg.goodnight;
     };
     const show = el('input', { type: 'checkbox', checked: cfg.goodnight?.enabled !== false });
@@ -78,7 +79,11 @@ export function buttonsStep(ctx) {
     }, { type: 'number', min: 0, max: 120, step: 1, inputmode: 'decimal', 'aria-label': t('setup.goodnightMinutes') });
     const then = select(entityOptions((s) => s.entity_id.startsWith('script.')), cfg.goodnight?.then ?? '', (v) => { conf().then = v || undefined; tidy(); },
       { 'aria-label': t('setup.goodnightThen') });
-    const more = el('div', { hidden: !show.checked }, field(t('setup.goodnightMinutes'), minutes), field(t('setup.goodnightThen'), then, t('setup.goodnightThenHelp')));
+    // Music and TVs too (MU4): speakers pause and TVs turn off with the lights.
+    const media = el('input', { type: 'checkbox', checked: !!cfg.goodnight?.media, 'data-field': 'goodnight-media' });
+    media.addEventListener('change', () => { conf().media = media.checked; tidy(); changed(); });
+    const more = el('div', { hidden: !show.checked }, field(t('setup.goodnightMinutes'), minutes), field(t('setup.goodnightThen'), then, t('setup.goodnightThenHelp')),
+      el('label', { class: 'setup-check-row' }, media, el('span', {}, t('music.goodnight'))));
     show.addEventListener('change', () => { conf().enabled = show.checked; tidy(); more.hidden = !show.checked; changed(); });
     return section(t('setup.goodnight'),
       el('label', { class: 'setup-check-row' }, show, el('span', {}, t('setup.goodnightShow'))),

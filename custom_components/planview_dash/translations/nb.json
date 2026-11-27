@@ -64,6 +64,10 @@
           "name": "Kjør deretter",
           "description": "Et skript som kjøres når lysene slås av, for eksempel for å låse."
         },
+        "media_player": {
+          "name": "Musikk og tv",
+          "description": "Høyttalere som spiller, settes på pause og tv-er slås av når tiden er ute."
+        },
         "cancel": {
           "name": "Avbryt",
           "description": "Stopp en nedtelling som pågår."

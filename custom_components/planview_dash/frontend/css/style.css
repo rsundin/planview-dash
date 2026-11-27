@@ -125,6 +125,25 @@ button { font: inherit; color: inherit; }
 .lights-menu[hidden] { display: none; }
 .lights-menu .chip { width: 100%; text-align: center; }
 
+/* What plays in the house (ui/playing.js) */
+.chip-playing { display: inline-flex; align-items: center; gap: 8px; max-width: 26ch; }
+.playing-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.playing-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; animation: playing-dot 1.6s ease-in-out infinite; }
+@keyframes playing-dot { 50% { opacity: 0.35; } }
+.playing-wrap { position: relative; }
+.playing-menu {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 30; display: flex; flex-direction: column; gap: 8px;
+  padding: 10px; background: var(--surface-solid); border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); min-width: 240px;
+}
+.playing-menu.to-left { left: auto; right: 0; }
+.playing-menu[hidden] { display: none; }
+.playing-menu > .chip { width: 100%; text-align: center; }
+.playing-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.playing-list li { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.playing-list li span { overflow-wrap: anywhere; }
+.playing-list .chip { flex: none; }
+
 .icon-btn {
   width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line);
   background: transparent; cursor: pointer; font-size: 20px; line-height: 1;
@@ -164,6 +183,37 @@ button { font: inherit; color: inherit; }
 .zoom-reset { position: absolute; right: 12px; top: 12px; z-index: 6; }
 .stage-hint { margin: 8px 2px 0; font-size: 13px; color: var(--muted); }
 .back { position: absolute; left: 12px; top: 12px; z-index: 5; }
+/* The music view (views/music.js): the switch on the plan, and the bar under it. */
+.music-toggle { position: absolute; right: 12px; top: 12px; z-index: 5; }
+/* Zoomed in, the zoom reset takes that corner: the switch moves below it. */
+.stage-wrap:has(.zoom-reset:not([hidden])) .music-toggle { top: 56px; }
+.music-toggle.is-active { border-color: #c9a2ff; color: #e4d2ff; }
+.music-bar { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 5; display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); max-width: 520px; }
+.music-bar-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.music-group-name { margin: 0; overflow-wrap: anywhere; }
+.music-main-vol { flex: 1; min-width: 120px; }
+.music-members { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.music-members li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 8px; align-items: center; }
+.music-members .step { width: 32px; height: 32px; font-size: 18px; }
+.stage:not(.is-music) .fp-music { display: none; }
+.fp-music-dim { fill: var(--bg); opacity: 0.6; pointer-events: none; }
+.fp-music-room { fill: rgba(201, 162, 255, 0.06); stroke: transparent; cursor: pointer; }
+.fp-music-room.is-silent { fill: rgba(0, 0, 0, 0.35); }
+.fp-music-room.is-playing { fill: rgba(201, 162, 255, 0.14); }
+.fp-music-room.in-group { stroke: var(--group); }
+.fp-music-room:focus-visible { outline: none; stroke: var(--accent); }
+.fp-music-track { fill: rgba(4, 9, 7, 0.7); stroke: var(--line); pointer-events: none; }
+.fp-music-ring { fill: none; stroke: var(--muted); stroke-linecap: round; pointer-events: none; }
+.fp-music-ring.is-playing { stroke: #c9a2ff; }
+.fp-music-icon { fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.fp-music-title { fill: var(--ink); font-family: var(--f-display); font-weight: 600; pointer-events: none; paint-order: stroke; stroke: var(--bg); stroke-width: 3px; stroke-linejoin: round; }
+.fp-music-btn { cursor: pointer; }
+.fp-music-btn circle { fill: var(--surface-solid); stroke: #c9a2ff; stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.fp-music-btn text { fill: var(--ink); font-family: var(--f-mono); pointer-events: none; }
+.fp-music-btn:focus-visible { outline: none; }
+.fp-music-btn:focus-visible circle { stroke: var(--accent); stroke-width: 3px; }
+.fp-music-drag { stroke: #c9a2ff; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; pointer-events: none; }
+.np-extra:empty { display: none; }
 
 .view { transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), filter 0.5s ease; }
 
@@ -259,6 +309,28 @@ button { font: inherit; color: inherit; }
 .fp-lamp.is-missing { opacity: 0.35; }
 /* Known to Home Assistant but not responding: dimmed, with a broken ring or line */
 .fp-lamp.is-silent { opacity: 0.5; }
+/* Speakers and TVs (views/speakers.js): an icon, a pulse over the room while it plays,
+   tinted from the album art, and a glow round a TV that is on. */
+.fp-speaker { cursor: pointer; }
+.fp-speaker:focus-visible { outline: none; }
+.fp-speaker-hit { fill: transparent; }
+.fp-speaker-dot { fill: var(--bg); stroke: var(--muted-2); transition: stroke 0.3s; }
+.fp-speaker-icon { fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.fp-speaker.is-on .fp-speaker-dot { stroke: var(--music-ink, #c9a2ff); }
+.fp-speaker.is-on .fp-speaker-icon { stroke: var(--ink); }
+.fp-speaker:hover .fp-speaker-dot, .fp-speaker:focus-visible .fp-speaker-dot { stroke: var(--accent); }
+.fp-speaker.is-missing { opacity: 0.35; }
+.fp-speaker.is-silent { opacity: 0.5; }
+.fp-music-pulse { fill: var(--music, #c9a2ff); opacity: 0; transition: opacity 0.6s; }
+.fp-music-pulse.is-on { opacity: 0.16; animation: music-pulse 2.6s ease-in-out infinite; }
+@keyframes music-pulse { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.26; } }
+@media (prefers-reduced-motion: reduce) { .fp-music-pulse.is-on { animation: none; } }
+.fp-tv-glow { fill: #8cc4ff; opacity: 0; transition: opacity 0.4s; }
+.fp-tv-glow.is-on { opacity: 0.22; }
+/* A room this screen does not show (screens.js), and what a guest screen leaves out. */
+.fp-room.is-hidden { fill: var(--bg); opacity: 0.85; pointer-events: none; }
+.is-guest .cam { display: none; }
+
 .fp-lamp.is-silent .fp-lamp-ring, .fp-lamp.is-silent .fp-strip-mark { stroke-dasharray: 0.6 0.4; } /* pathLength 12 or 24 */
 /* LED strips: a light drawn as a line or a surface (views/floorplan.js addStrip). */
 .fp-strip-glow { transition: opacity 0.5s ease; }
@@ -396,6 +468,24 @@ button { font: inherit; color: inherit; }
 .light-name { font-weight: 500; }
 .pct { font: 12.5px var(--f-mono); color: var(--muted); }
 .light-list li.is-missing { opacity: 0.5; }
+/* Now playing in the room panel (ui/nowplaying.js). */
+.np-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.np-row { display: grid; gap: 8px; }
+.np-row.is-missing { opacity: 0.5; }
+.np-top { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.np-art { width: 52px; height: 52px; border-radius: 6px; flex: none; object-fit: cover; background: var(--floor); }
+.np-art-none { display: grid; place-items: center; color: var(--muted); border: 1px solid var(--line); }
+.np-text { display: grid; min-width: 0; }
+.np-name { font-size: 13px; color: var(--muted); }
+.np-title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.np-by { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.np-row.is-playing .np-name { color: var(--ink); }
+.np-controls, .np-vol, .np-more { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.np-btn { display: inline-grid; place-items: center; color: var(--ink); padding: 0; }
+.np-btn[aria-pressed="true"] { border-color: var(--accent); }
+.np-volume { flex: 1; min-width: 120px; }
+.np-source { flex: 1; min-width: 0; max-width: 100%; }
+.np-favs { display: flex; gap: 6px; flex-wrap: wrap; }
 input[type='range'] { width: 100%; accent-color: var(--glow); }
 
 /* ---------- settings sheet + editor */
@@ -563,6 +653,19 @@ input[type='range'] { width: 100%; accent-color: var(--glow); }
 .setup-prompt { display: grid; gap: 6px; margin-top: 10px; }
 .setup-prompt pre { margin: 0; padding: 10px 12px; border-radius: var(--r); background: rgba(0, 0, 0, 0.3); font-family: var(--f-mono, monospace); font-size: 12px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 18em; overflow: auto; }
 .setup-checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+/* The closed house (ui/closed.js): its card leads, lights and scenes step back. */
+.chip-closed.is-closed { border-color: var(--cold); color: var(--cold); }
+.card-closed { border-color: var(--cold); }
+.closed-facts .is-warn dd, .closed-facts .is-warn dd .linkish { color: var(--danger); }
+.closed-facts dd { overflow-wrap: anywhere; }
+.linkish { background: none; border: 0; padding: 0; color: inherit; font: inherit; text-decoration: underline dotted; cursor: pointer; text-align: inherit; }
+.closed-arrive { display: grid; gap: 8px; }
+.closed-arrive summary { cursor: pointer; font-weight: 600; }
+.closed-estimate { margin: 6px 0; }
+.is-closed .side .card[data-card="lights"] { order: 10; opacity: 0.7; }
+.is-closed .side .card-closed { order: -1; }
+pre.setup-code { margin: 0; padding: 10px 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; font: 12px/1.45 var(--f-mono); overflow-x: auto; max-width: 100%; }
+.setup-card { border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 10px; background: var(--bg); }
 .setup-check-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; }
 .setup-check-row .muted { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
 .setup-steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 65ch; }
@@ -727,6 +830,28 @@ details.alert .alert-action { margin: 4px 0 2px; font-size: 13px; }
 .idle-dim { position: fixed; inset: 0; z-index: 75; background: rgba(0, 0, 0, var(--dim, 0.85)); display: grid; place-items: center; cursor: none; touch-action: none; }
 .idle-clock { font: 500 clamp(48px, 12vw, 160px) var(--f-mono); font-variant-numeric: tabular-nums; color: var(--ink); opacity: 0.22; user-select: none; -webkit-user-select: none; }
 
+/* ---------- the house as screensaver (ui/ambient.js): the picture full screen, a clock on it */
+.is-ambient .stage-wrap { position: fixed; inset: 0; z-index: 72; }
+.is-ambient .stage { height: 100vh; height: 100dvh; border: 0; border-radius: 0; aspect-ratio: auto; }
+.is-ambient .stage-wrap > :not(.stage), .is-ambient .zoom-reset { display: none !important; }
+.ambient {
+  position: fixed; inset: 0; z-index: 73; cursor: none; touch-action: none; user-select: none; -webkit-user-select: none;
+  display: flex; align-items: flex-end; padding: clamp(16px, 4vw, 56px);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0) 55%);
+}
+.ambient[hidden] { display: none; }
+/* A slow drift, so nothing stays on the same pixels all day; light mode keeps it still. */
+.ambient-box { display: grid; gap: 6px; max-width: min(720px, 100%); color: #f4f1ea; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6); animation: ambient-drift 600s ease-in-out infinite alternate; }
+@keyframes ambient-drift { to { transform: translate(3vw, -2vh); } }
+.ambient-box p { margin: 0; }
+.ambient-clock { font: 500 clamp(56px, 12vw, 168px) / 1 var(--f-display); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.ambient-date { font: 500 clamp(18px, 2.4vw, 30px) var(--f-display); text-transform: capitalize; opacity: 0.9; }
+.ambient-temp, .ambient-event, .ambient-playing { font: 400 clamp(16px, 2vw, 24px) var(--f-display); }
+.ambient-warnings { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.ambient-warnings li { font: 500 clamp(15px, 1.8vw, 21px) var(--f-display); padding-left: 14px; border-left: 3px solid var(--glow); }
+.ambient-warnings li[data-level='alert'] { border-color: var(--danger); }
+.ambient [hidden] { display: none; }
+
 /* ---------- hidden page or night dim: animations rest (syncPause in util.js) */
 .is-paused *, .is-paused *::before, .is-paused *::after { animation-play-state: paused !important; }
 
@@ -743,6 +868,8 @@ details.alert .alert-action { margin: 4px 0 2px; font-size: 13px; }
 .is-lite .ov-window-bloom, .is-lite .ov-wash, .is-lite .ov-solar-sweep, .is-lite .ov-wx::after { display: none; }
 .is-lite .stage.is-night .fp-halo { transform: none; }
 .is-lite .sheet, .is-lite .bell { background: rgba(4, 9, 7, 0.9); }
+/* Music: the pulse stands still at its middle strength. */
+.is-lite .fp-music-pulse.is-on { opacity: 0.18; }
 
 /* ---------- text size per device (main.js: body[data-text]): large and extra large
    Everything outside the picture grows as one piece, text, cards and touch targets alike;

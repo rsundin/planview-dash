@@ -8,6 +8,7 @@ import { lightColor, createTints } from '../glow.js';
 import { roomStatus, statusIds } from '../status.js';
 import { cameraMarkers, openCamera } from '../ui/camera.js';
 import { pictureDim } from '../site.js';
+import { createSpeakers } from './speakers.js';
 
 // Status icons, drawn in a 24-unit box.
 export const ICONS = {
@@ -19,7 +20,7 @@ export const ICONS = {
 
 const FLAME = 'M12 2c1 3.5-1.5 5-1.5 7.5A2.5 2.5 0 0 0 13 12c0-1 .5-2 1.5-2.5C16 12 18 13.5 18 16a6 6 0 0 1-12 0c0-4 3-6 6-14z';
 
-export function createFloorplan({ site, plan, store, adapter, onRoom }) {
+export function createFloorplan({ site, plan, store, adapter, onRoom, music = null }) {
   const rooms = plan.rooms ?? [];
   const outline = plan.outline ?? rooms.flatMap((r) => r.area);
   const bb = bbox([outline, ...rooms.map((r) => r.area)]);
@@ -58,6 +59,8 @@ export function createFloorplan({ site, plan, store, adapter, onRoom }) {
   const lamps = sv('g', { class: 'fp-lamps' });
 
   for (const room of rooms) {
+    // A room this screen does not show (screens.js): covered, with nothing to tap.
+    if (room.hidden) { fills.append(sv('polygon', { class: 'fp-room is-hidden', points: pts(room.area), 'aria-hidden': 'true' })); continue; }
     const [cx, cy] = room.label ?? centroid(room.area);
     const fill = sv('polygon', { class: 'fp-room', points: pts(room.area), tabindex: 0, role: 'button', 'aria-label': room.name });
     fill.addEventListener('click', () => onRoom(room));
@@ -196,18 +199,26 @@ export function createFloorplan({ site, plan, store, adapter, onRoom }) {
   const camsG = cameraMarkers({ cams, unit, store, site,
     onOpen: (i) => openCamera({ site, store, adapter, ids: cams.map((c) => c.entity), index: i }) });
 
+  // Speakers and TVs in their rooms (views/speakers.js).
+  const speakers = createSpeakers({ site, rooms, store, adapter, unit, onRoom });
+
   const svg = sv('svg', {
     class: 'fp-svg', viewBox: `${bb.x - pad} ${bb.y - pad} ${bb.w + pad * 2} ${bb.h + pad * 2}`,
     role: 'group', 'aria-label': t('plan.label', { name: plan.name }),
   },
   defs,
-  floor, fills, glows, walls, labels, lamps, camsG);
+  floor, fills, speakers.pulses, glows, walls, labels, lamps, speakers.marks, camsG);
+
+  // The music view (views/music.js): over everything, shown while Music is on.
+  const musicLayer = music?.layer({ rooms, unit, onRoom });
+  if (musicLayer) { svg.append(musicLayer.el); musicLayer.attach(svg); }
 
   const root = el('div', { class: `view fp${picture ? ' has-picture' : ''}${tiles ? ' is-tiles' : ''}`, 'data-plan': plan.id }, svg);
 
   return {
     el: root,
     svg,
+    hasMusic: !!musicLayer?.hasMusic,
     select(roomId) {
       fills.querySelectorAll('.fp-room').forEach((n, i) => n.classList.toggle('is-selected', rooms[i].id === roomId));
     },

@@ -63,6 +63,13 @@ export function createHassAdapter(initialHass) {
       return (await hass.callWS({ type: 'config/entity_registry/get', entity_id: entityId }))?.config_entry_id ?? null;
     },
 
+    // A player's media browser (favourites, radio): Home Assistant's browse_media.
+    browse(entityId, contentId, contentType) {
+      const msg = { type: 'media_player/browse_media', entity_id: entityId };
+      if (contentId) Object.assign(msg, { media_content_id: contentId, media_content_type: contentType });
+      return hass.callWS(msg);
+    },
+
     // Address of a Home Assistant path, such as a camera picture.
     url(path) {
       return typeof hass.hassUrl === 'function' ? hass.hassUrl(path) : path;

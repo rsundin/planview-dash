@@ -64,6 +64,10 @@
           "name": "Danach ausführen",
           "description": "Ein Skript, das läuft, wenn das Licht ausgeht, zum Beispiel zum Abschließen."
         },
+        "media_player": {
+          "name": "Musik und Fernseher",
+          "description": "Lautsprecher, die spielen, pausieren und Fernseher schalten sich aus, wenn die Zeit um ist."
+        },
         "cancel": {
           "name": "Abbrechen",
           "description": "Einen laufenden Countdown stoppen."

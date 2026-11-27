@@ -64,6 +64,10 @@
           "name": "Then run",
           "description": "A script to run when the lights go off, for example to lock up."
         },
+        "media_player": {
+          "name": "Music and TVs",
+          "description": "Speakers that are playing pause and TVs turn off when the time is up."
+        },
         "cancel": {
           "name": "Cancel",
           "description": "Stop a countdown that is running."

@@ -64,6 +64,10 @@
           "name": "Daarna uitvoeren",
           "description": "Een script dat wordt uitgevoerd als de lampen uitgaan, bijvoorbeeld om af te sluiten."
         },
+        "media_player": {
+          "name": "Muziek en tv's",
+          "description": "Speakers die spelen pauzeren en tv's gaan uit als de tijd om is."
+        },
         "cancel": {
           "name": "Annuleren",
           "description": "Stop een aftelling die loopt."

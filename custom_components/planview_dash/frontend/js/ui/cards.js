@@ -7,11 +7,13 @@ import { areaOf, areaName } from '../areas.js';
 import { t } from '../i18n.js';
 import { allLightsOn, allOnButton, allOffButton, goodnightOn, goodnightButton } from './lights.js';
 import { readPower, splitPower, powerSentence } from '../power.js';
+import { closedCard } from './closed.js';
 
 
-export function createSide({ site, store, adapter, openRoom }) {
-  const cards = [weatherCard, energyCard, priceCard, lightsCard, heatCard]
-    .map((f) => f({ site, store, adapter, openRoom }))
+export function createSide({ site, store, adapter, openRoom, admin = false }) {
+  // The closed house leads while it is closed (ui/closed.js); it is hidden otherwise.
+  const cards = [closedCard, weatherCard, energyCard, priceCard, lightsCard, heatCard]
+    .map((f) => f({ site, store, adapter, openRoom, admin }))
     .filter(Boolean);
   return el('div', { class: 'side' }, cards);
 }
@@ -239,7 +241,9 @@ function lightsCard({ site, store, adapter }) {
   if (allLightsOn(site)) scenes.append(allOnButton({ site, adapter }), allOffButton({ site, adapter }));
   if (goodnightOn(site)) scenes.append(goodnightButton({ site, adapter }));
 
-  return card(t('cards.lights'), list, scenes);
+  const lights = card(t('cards.lights'), list, scenes);
+  lights.dataset.card = 'lights'; // steps back while the house is closed (style.css)
+  return lights;
 }
 
 function heatCard({ site, store, openRoom }) {

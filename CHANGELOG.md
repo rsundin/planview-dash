@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.1.0-beta.1
+
+**A beta of 1.1, published as a pre-release beside 1.0.0.** Music in the room, wall screens with profiles and a screensaver, and the closed summer house. Try it on a test dashboard first; 1.0.x stays the release for everyday use. Report what does not work with **?** in the dashboard.
+
+- **Speakers and TVs in their rooms** (MU1): every media player in a linked room's Home Assistant area shows on the floor plan by itself, in the corner farthest from the lamps. A room pulses softly in the album art's colour while it plays, and a TV that is on glows. Light mode keeps them still. Placement mode lists them folded and never counts an unplaced one as missing. `"music": { "enabled": false }` turns it all off
+- **Now playing in the room panel** (MU2): artwork, title and artist, previous, play/pause and next, volume and mute, the source and a short list of favourites, only the controls each player supports
+- **The music view** (MU3): **Music** on a floor plan; tap a room to play or pause, **+** and **−** to add or drop rooms from the group, drag from a playing room to join or move the music, group volume and per room. Moves the queue with Music Assistant where it is there
+- **The whole house playing** (MU4): the header says what plays where, with Pause all. Goodnight can pause the music and turn off the TVs (`media_player` on `planview_dash.goodnight`, and a tick in the guide's Buttons step). The card has a new view, `music`
+- **Screen profiles and guest mode** (W2): a profile per wall screen with its own start view and idle time, chosen with `?screen=<id>` or on the device. Guest mode hides placement, setup and cameras, keeps locks, alarms, garage doors and gates read-only, and can hide rooms. New guide step **Screens**
+- **The closed house** (F1): for a summer house; frost and damp warnings, and while closed a card that leads with the coldest room, heating, humidity, leaks, doors and locks, the key devices and the last visit. New guide step **Closed house**
+- **Warm up before arrival** (F2): pick when you arrive, and the card works out from the house's own history when heating has to start, then sets a date and time helper that an automation acts on
+- **The house as screensaver** (W1): in kiosk mode after a while without touch, the overview full screen with a big clock, the outdoor temperature, the next calendar event, warnings and what is playing. A touch goes back; the night dim takes over at night. Turn it on in the guide's Wall screen step. A photo-frame mode comes later
+- Restart Home Assistant after updating (the goodnight action changed), then reload the dashboard
+
 ## 0.9.0
 
 **The beta for 1.0.** Everything planned for 1.0 is in, and from here 0.9.x takes bug fixes only, no new features. When a 0.9.x release has run two weeks without needing a fix, and the release checklist is done on real screens, the same code becomes 1.0.0. If something does not work on your home, now is the best time to say so: tap **?** in the dashboard, which fills in a [bug report](https://github.com/rsundin/planview-dash/issues/new?template=bug_report.yml) without details about your home. Every report gets an answer within a few days.

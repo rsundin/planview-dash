@@ -98,6 +98,13 @@ export function createHaAdapter({ url, token }) {
       return send({ type: 'config/entity_registry/get', entity_id: entityId }).then((r) => r?.config_entry_id ?? null);
     },
 
+    // A player's media browser (favourites, radio): Home Assistant's browse_media.
+    browse(entityId, contentId, contentType) {
+      const msg = { type: 'media_player/browse_media', entity_id: entityId };
+      if (contentId) Object.assign(msg, { media_content_id: contentId, media_content_type: contentType });
+      return send(msg);
+    },
+
     // Address of a Home Assistant path, such as a camera picture.
     url(path) {
       return (url || location.origin).replace(/\/$/, '') + path;

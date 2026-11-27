@@ -4,21 +4,26 @@
 //   "wall_screen": {
 //     "doorbell": { "entity": "binary_sensor.doorbell", "camera": "camera.front_door", "seconds": 60 },
 //     "idle": { "back_after": 120, "dim_from": "22:00", "dim_to": "06:30", "dim": 0.85, "wake": ["binary_sensor.hall_motion"] },
+//     "ambient": { "after": 300, "calendar": "calendar.family" },
 //     "lite": false
 //   }
 //
 // Doorbell: when the entity rings, the camera opens in a window that closes by itself.
 // Idle (kiosk mode only): back to the start view after a while without touch, and between
 // dim_from and dim_to a dimmed screen that a touch or a motion sensor wakes.
+// Ambient (kiosk mode only, ui/ambient.js): the house as screensaver after a while without
+// touch, outside the dim hours.
 // Light mode: no blur, blending or animation, for older tablets. Per device On, Off or
 // Auto on the wall screen sheet (the Kiosk mode button), or with ?lite and ?lite=0 on the
 // address. Auto follows "lite": true for every screen, and otherwise turns it on for
 // devices with two cores or 2 GB of memory or less.
 
-import { el, storage, syncPause } from '../util.js';
+import { el, storage, syncPause, press } from '../util.js';
+import { screensOf, chooseScreen } from '../screens.js';
 import { t } from '../i18n.js';
 import { nameOf } from '../entities.js';
 import { openCamera, closeCamera, cameraOpen } from './camera.js';
+import { createAmbient, ambientCfg } from './ambient.js';
 
 const LITE_KEY = 'pvd:lite';
 
@@ -83,18 +88,23 @@ export function inWindow(now, from, to) {
  * @param {Function} o.kiosk   () => is this device in kiosk mode
  * @param {Function} o.enterKiosk  starts kiosk mode (from a tap)
  * @param {AbortSignal} o.signal
+ * @param {object} [o.screen]  this device's screen profile (screens.js)
+ * @param {Function} [o.restart] restarts the dashboard (after choosing another profile)
+ * @param {Function} [o.warnings] () => the warnings shown, for the screensaver
+ * @param {Function} [o.onAmbient] (on) => the dashboard shows the house full screen, or stops
  */
-export function createWall({ site, store, adapter, goHome, kiosk, enterKiosk, signal }) {
+export function createWall({ site, store, adapter, goHome, kiosk, enterKiosk, signal, screen = null, restart = () => location.reload(),
+  warnings = () => [], onAmbient = () => {} }) {
   const cfg = site.wall_screen ?? {};
   const idle = cfg.idle ?? {};
   const bells = [].concat(cfg.doorbell ?? []).filter((b) => b?.entity && b?.camera);
   const timers = [];
-  signal.addEventListener('abort', () => { timers.forEach(clearInterval); closeCamera(); dimmer.remove(); sheet.remove(); dim(false); });
+  signal.addEventListener('abort', () => { timers.forEach(clearInterval); closeCamera(); dimmer.remove(); sheet.remove(); dim(false); ambient(false); ambientBox.el.remove(); });
 
   // ---------- idle
   let last = Date.now();
   let away = false; // went home after the last touch
-  const backAfter = Number(idle.back_after ?? 120) * 1000;
+  const backAfter = Number(screen?.back_after ?? idle.back_after ?? 120) * 1000;
   const dimLevel = Math.min(0.97, Math.max(0.2, Number(idle.dim ?? 0.85)));
   const dimClock = el('time', { class: 'idle-clock' });
   const dimmer = el('div', { class: 'idle-dim', hidden: true, 'aria-hidden': 'true' }, dimClock);
@@ -111,7 +121,19 @@ export function createWall({ site, store, adapter, goHome, kiosk, enterKiosk, si
     document.body.classList.toggle('is-dimmed', on);
     syncPause();
   }
-  const touched = () => { last = Date.now(); away = false; if (!dimmer.hidden) wake(); };
+  // ---------- the house as screensaver (ui/ambient.js)
+  const ambientOn = ambientCfg(site);
+  const ambientAfter = ambientOn ? Math.max(5, Number(ambientOn.after ?? (backAfter > 0 ? backAfter / 1000 : 120))) * 1000 : 0;
+  const ambientBox = createAmbient({ site, store, warnings });
+  document.body.append(ambientBox.el);
+  // A touch only wakes the dashboard; it does not reach what is under the picture.
+  ambientBox.el.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); });
+  ambientBox.el.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
+  function ambient(on) {
+    if (ambientBox.shown === on) return;
+    if (on) { onAmbient(true); ambientBox.show(); } else { ambientBox.hide(); onAmbient(false); }
+  }
+  const touched = () => { last = Date.now(); away = false; if (!dimmer.hidden) wake(); ambient(false); };
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeCamera(); closeSheet(); } }, { signal });
   for (const type of ['pointerdown', 'keydown', 'wheel']) document.addEventListener(type, touched, { capture: true, passive: true, signal });
 
@@ -121,14 +143,16 @@ export function createWall({ site, store, adapter, goHome, kiosk, enterKiosk, si
   }
   const night = () => inWindow(new Date(), idle.dim_from, idle.dim_to);
   function check() {
-    if (!kiosk() || cameraOpen()) { dim(false); return; }
+    if (!kiosk() || cameraOpen()) { dim(false); ambient(false); return; }
     const quiet = Date.now() - last;
     if (backAfter > 0 && quiet >= backAfter && !away) { away = true; goHome(); }
     const dimAfter = backAfter > 0 ? backAfter : 120000;
     if (night() && quiet >= dimAfter) {
       dimClock.textContent = new Date().toLocaleTimeString(site.locale, { hour: '2-digit', minute: '2-digit' });
+      ambient(false); // night hands over to the dim
       dim(true);
     } else if (!night()) dim(false);
+    if (ambientAfter && !night() && quiet >= ambientAfter) ambient(true);
   }
   timers.push(setInterval(check, 5000));
   // A motion sensor wakes the dimmed screen.
@@ -156,6 +180,7 @@ export function createWall({ site, store, adapter, goHome, kiosk, enterKiosk, si
 
   function ring(b) {
     wake();
+    ambient(false);
     openCamera({
       site, store, adapter, ids: [b.camera], seconds: Math.max(5, Number(b.seconds ?? 60)),
       eyebrow: t('wall.ringing'), title: (b.name ?? nameOf(b.camera, { store, site }, '')) || t('wall.door'),
@@ -178,6 +203,24 @@ export function createWall({ site, store, adapter, goHome, kiosk, enterKiosk, si
       },
     }, v === 'auto' ? t('wall.liteAuto', { state: t(liteAuto(site) ? 'wall.on' : 'wall.off') }) : t(v === 'on' ? 'wall.liteOn' : 'wall.liteOff'))));
   };
+  // This screen's profile (screens.js). On a guest screen the choice is behind a long press,
+  // so a guest does not change it by mistake.
+  const profiles = screensOf(site);
+  const pick = el('div', { class: 'seg seg-wrap', role: 'group', 'aria-label': t('screen.title') });
+  const renderPick = () => pick.replaceChildren(...[{ id: null, name: t('screen.none') }, ...profiles].map((p) => {
+    const on = (screen?.id ?? null) === p.id;
+    return el('button', { type: 'button', class: on ? 'is-active' : null, 'aria-pressed': String(on), 'data-screen': p.id ?? '',
+      onclick: () => { if (on) return; chooseScreen(site, p.id); closeSheet(); restart(); } },
+    p.name || p.id, p.guest ? ` · ${t('screen.guest')}` : '');
+  }));
+  const unlock = el('button', { class: 'chip', type: 'button', 'data-action': 'screen-unlock' }, t('screen.unlock'));
+  press(unlock, null, () => { unlock.hidden = true; pick.hidden = false; }, 3000);
+  const screenSection = profiles.length ? [
+    el('h3', { class: 'eyebrow wall-h' }, t('screen.title')),
+    el('p', { class: 'muted small' }, screen ? t('screen.current', { name: screen.name || screen.id }) : t('screen.help')),
+    screen?.guest ? unlock : null,
+    pick,
+  ] : [];
   const sheet = el('div', { class: 'sheet', hidden: true },
     el('div', { class: 'sheet-card', role: 'dialog', 'aria-label': t('wall.title') },
       el('header', { class: 'panel-head' },
@@ -191,7 +234,8 @@ export function createWall({ site, store, adapter, goHome, kiosk, enterKiosk, si
       el('h3', { class: 'eyebrow wall-h' }, t('wall.doorbell')),
       el('p', { class: 'muted small' }, bells.length ? t('wall.doorbellOn') : t('wall.doorbellOff')),
       // Shows the window on this screen only; nothing is rung in Home Assistant.
-      bells.length ? el('div', { class: 'row' }, el('button', { class: 'chip', type: 'button', onclick: () => { closeSheet(); ring(bells[0]); } }, t('wall.testDoorbell'))) : null));
+      bells.length ? el('div', { class: 'row' }, el('button', { class: 'chip', type: 'button', onclick: () => { closeSheet(); ring(bells[0]); } }, t('wall.testDoorbell'))) : null,
+      ...screenSection));
   sheet.addEventListener('click', (e) => { if (e.target === sheet) closeSheet(); });
   document.body.append(sheet);
   function closeSheet() { sheet.hidden = true; }
@@ -199,6 +243,8 @@ export function createWall({ site, store, adapter, goHome, kiosk, enterKiosk, si
   return {
     ring: (i = 0) => bells[i] && ring(bells[i]),
     wake,
-    open() { renderSeg(); sheet.hidden = false; },
+    check,
+    ambient: (on = true) => ambient(on),
+    open() { renderSeg(); renderPick(); pick.hidden = !!screen?.guest; unlock.hidden = !screen?.guest; sheet.hidden = false; },
   };
 }

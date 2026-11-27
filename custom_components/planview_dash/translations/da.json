@@ -64,6 +64,10 @@
           "name": "Kør derefter",
           "description": "Et script, der køres, når lyset slukkes, for eksempel for at låse."
         },
+        "media_player": {
+          "name": "Musik og tv",
+          "description": "Højttalere, der spiller, sættes på pause, og tv slukkes, når tiden er gået."
+        },
         "cancel": {
           "name": "Afbryd",
           "description": "Stop en nedtælling, der er i gang."
