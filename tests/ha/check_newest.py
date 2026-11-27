@@ -74,9 +74,11 @@ def check_schemas() -> None:
     check(conf[DOMAIN]["dashboards"][0]["title"] == "PlanView Dash", "CONFIG_SCHEMA fills in defaults")
     check(refused(CONFIG_SCHEMA, {DOMAIN: {"dashboards": [{"site": "../x"}]}}), "CONFIG_SCHEMA refuses a bad site id")
     call = SCHEMA({"site": "home", "entity_id": "light.a", "minutes": "5", "then": "script.x"})
-    check(call == {"site": "home", "entity_id": ["light.a"], "minutes": 5.0, "then": "script.x", "cancel": False},
+    check(call == {"site": "home", "entity_id": ["light.a"], "minutes": 5.0, "then": "script.x", "media_player": [], "cancel": False},
           "goodnight schema reads a call")
-    for bad in ({"site": "home", "entity_id": ["lock.door"]}, {"site": "home", "minutes": 500}, {"site": "home", "then": "lock.x"}):
+    call = SCHEMA({"site": "home", "media_player": "media_player.kitchen"})
+    check(call["media_player"] == ["media_player.kitchen"], "goodnight schema reads speakers to pause")
+    for bad in ({"site": "home", "entity_id": ["lock.door"]}, {"site": "home", "minutes": 500}, {"site": "home", "then": "lock.x"}, {"site": "home", "media_player": ["light.a"]}):
         check(refused(SCHEMA, bad), f"goodnight schema refuses {bad}")
 
 
