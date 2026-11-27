@@ -1,6 +1,6 @@
 # Launch posts
 
-Ready-made texts for showing PlanView Dash to the community (roadmap task G1). Only the owner can post them, from their own accounts. Written 18 November 2026 for 0.8.34; check the version, the links and the Marketplace wording before posting.
+Ready-made texts for showing PlanView Dash to the community (roadmap task G1). Only the owner can post them, from their own accounts. Written 18 November 2026 for 0.8.34 and updated for the 0.9.0 beta; check the version, the links and the Marketplace wording before posting. The posts say it is a beta for 1.0, so early users know their reports count.
 
 **Order:** publish the release first, so the recording in the README is on `main`. Then the Show and tell discussion (the posts link to it), then the Home Assistant Community thread, then Reddit a day or two later, linking to the forum thread for longer questions.
 
@@ -38,7 +38,7 @@ Discussions → **Show and tell** → **New discussion**. Pin it afterwards (⋯
 
 **Body:**
 
-> Hi all! I have been building a dashboard that shows the house as a picture rather than as cards, and it is now at a point where others can use it.
+> Hi all! I have been building a dashboard that shows the house as a picture rather than as cards, and it is now at a point where others can use it. Version 0.9 is the **beta for 1.0**: the features are in, and until 1.0 I only fix what people report, so reports from homes unlike mine count double.
 >
 > *[upload demo.webp here]*
 >
@@ -82,6 +82,8 @@ Discussions → **Show and tell** → **New discussion**. Pin it afterwards (⋯
 > Live demo (no install): https://rsundin.github.io/planview-dash/
 > GitHub: https://github.com/rsundin/planview-dash
 > Install: Settings → Marketplace → Add from link (HA 2026.11+), or HACS custom repository on older versions.
+>
+> It is a beta for 1.0 (0.9): features are done, and until 1.0 only reported problems get fixed, so if it misbehaves on your home, please open an issue.
 >
 > Happy to answer questions. Forum thread for longer discussions: *[link to the Community thread]*
 
