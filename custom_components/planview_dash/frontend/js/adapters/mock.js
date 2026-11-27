@@ -368,6 +368,10 @@ export function createMockAdapter(site) {
           set(id, 'unknown', { ...attrs, minutes: null });
           for (const l of [].concat(data.entity_id ?? [])) if (store.get(l)) set(l, 'off', { brightness: null });
         }, ms);
+      } else if (domain === 'input_boolean') {
+        for (const id of ids) { const st = store.get(id)?.state; set(id, service === 'turn_on' || (service === 'toggle' && st !== 'on') ? 'on' : 'off'); }
+      } else if (domain === 'input_datetime' && service === 'set_datetime') {
+        for (const id of ids) set(id, data.datetime);
       } else if (domain === 'media_player' || (domain === 'music_assistant' && service === 'transfer_queue')) {
         mediaCall(domain, service, data, ids);
       } else if (domain === 'scene' && service === 'turn_on') {

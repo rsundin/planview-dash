@@ -6,6 +6,8 @@
 //   Energy      power, energy, price and weather entities
 //   Buttons     scenes and scripts shown as buttons
 //   Wall screen doorbell camera, idle mode, light mode
+//   Screens     screen profiles: start view, guest mode, hidden rooms
+//   Closed house the summer house: closed state, frost and damp, warm up before arrival
 //   Lights      hands over to placement mode
 //   Backup      export and import as .zip, restore points (ui/backup.js; panel only)
 //
@@ -32,8 +34,10 @@ import { energyStep } from './energy.js';
 import { buttonsStep } from './buttons.js';
 import { wallStep } from './wall.js';
 import { lightsStep } from './lights.js';
+import { screensStep } from './screens.js';
+import { houseStep } from './house.js';
 
-const STEPS = ['basics', 'overview', 'plans', 'energy', 'buttons', 'wall', 'lights', 'backup'];
+const STEPS = ['basics', 'overview', 'plans', 'energy', 'buttons', 'wall', 'screens', 'house', 'lights', 'backup'];
 
 export function createSetup({ site, store, saveSite, uploadFile, reload, openPlacement, openReport = null, backup = null, onClose = () => {} }) {
   const cfg = structuredClone(site.raw);
@@ -144,7 +148,7 @@ export function createSetup({ site, store, saveSite, uploadFile, reload, openPla
 
   function render() {
     // Without an overview picture (an apartment) that step is optional and comes after the plans.
-    const steps = (cfg.overview ? STEPS : ['basics', 'plans', 'overview', 'energy', 'buttons', 'wall', 'lights', 'backup'])
+    const steps = (cfg.overview ? STEPS : ['basics', 'plans', 'overview', 'energy', 'buttons', 'wall', 'screens', 'house', 'lights', 'backup'])
       .filter((s) => s !== 'backup' || backup);
     nav.replaceChildren(...steps.map((s, i) => el('button', {
       type: 'button', class: `setup-step${s === step ? ' is-active' : ''}`, 'aria-current': String(s === step),
@@ -176,6 +180,8 @@ export function createSetup({ site, store, saveSite, uploadFile, reload, openPla
     energy: energyStep(ctx),
     buttons: buttonsStep(ctx),
     wall: wallStep(ctx),
+    screens: screensStep(ctx),
+    house: houseStep(ctx),
     lights: lightsStep(ctx),
     // export, import, restore points (ui/backup.js; panel only)
     backup: () => backupStep({ backup, locale: site.locale, status, reload, unsaved: () => dirty }),

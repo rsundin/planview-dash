@@ -31,6 +31,7 @@ export function createPanel({ site, store, adapter, musicExtra = null }) {
   }
 
   function open(room) {
+    if (!room || room.hidden) return; // a room this screen does not show (screens.js)
     const from = root.contains(document.activeElement) ? opener : document.activeElement;
     close();
     opener = from;

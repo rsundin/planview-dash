@@ -59,6 +59,8 @@ export function createFloorplan({ site, plan, store, adapter, onRoom }) {
   const lamps = sv('g', { class: 'fp-lamps' });
 
   for (const room of rooms) {
+    // A room this screen does not show (screens.js): covered, with nothing to tap.
+    if (room.hidden) { fills.append(sv('polygon', { class: 'fp-room is-hidden', points: pts(room.area), 'aria-hidden': 'true' })); continue; }
     const [cx, cy] = room.label ?? centroid(room.area);
     const fill = sv('polygon', { class: 'fp-room', points: pts(room.area), tabindex: 0, role: 'button', 'aria-label': room.name });
     fill.addEventListener('click', () => onRoom(room));

@@ -9,9 +9,12 @@
 import { t } from './i18n.js';
 import { isOn, nameOf } from './entities.js';
 
-export function guardCalls(adapter, { store, site, say }) {
+// `allow(domain, service, data)`, when given, decides which calls may go out at all (a
+// guest screen leaves locks and garage doors alone, screens.js): one it refuses does nothing.
+export function guardCalls(adapter, { store, site, say, allow = null }) {
   const guarded = Object.create(adapter);
   guarded.call = async (domain, service, data = {}, { onError } = {}) => {
+    if (allow && !allow(domain, service, data)) return false;
     // Toggle says on or off from the state before the call.
     const text = () => failText(domain, service, data, { store, site });
     const message = service === 'toggle' ? text() : null;

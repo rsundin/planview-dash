@@ -5,7 +5,8 @@
 // room linked to a Home Assistant area, every matching sensor in that area. So a
 // window sensor added to the area in Home Assistant shows up without any setup.
 
-import { num } from './util.js';
+import { num, fmt } from './util.js';
+import { frostRooms, dampSensors } from './closed.js';
 import { climate, powerUnitProblem } from './entities.js';
 import { t } from './i18n.js';
 
@@ -125,6 +126,13 @@ export function warnings(site, store, name) {
       if (isAlarm(s)) out.push({ level: 'alert', room, text: t(ALARM_TEXT[s.attributes?.device_class] ?? 'warn.safety', { room: room.name }) });
     }
   }
+  // The closed house (closed.js): frost in a room, damp where humidity is measured.
+  for (const { room, value } of frostRooms(site, store)) {
+    out.push({ level: 'alert', room, key: `frost:${room.id}`, text: t('warn.frost', { room: room.name, temp: `${fmt(value, 1, site.locale)}°` }) });
+  }
+  for (const { id, room, value } of dampSensors(site, store)) {
+    out.push({ level: 'warn', room, key: `damp:${id}`, text: t('warn.damp', { room: room?.name ?? name(id), value: `${Math.round(value)} %` }) });
+  }
   for (const room of rooms) {
     if (roomStatus(store, room).open.length && heatingOn(store, room)) {
       out.push({ level: 'warn', room, text: t('warn.openHeating', { room: room.name }) });
@@ -216,5 +224,5 @@ function batteryLine(s, name) {
 // Every entity the warnings depend on, to know when to recompute them.
 export function warningIds(site) {
   const rooms = [...site.index.rooms.values()];
-  return [...new Set([...site.index.lights, ...site.index.climates, ...site.index.temps, ...rooms.flatMap(statusIds)])];
+  return [...new Set([...site.index.lights, ...site.index.climates, ...site.index.temps, ...rooms.flatMap(statusIds), ...(site.index.humidity ?? [])])];
 }
