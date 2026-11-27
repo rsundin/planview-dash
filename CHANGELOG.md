@@ -1,464 +1,63 @@
 # Changelog
 
-## 0.9.0
+## 1.0.0
 
-**The beta for 1.0.** Everything planned for 1.0 is in, and from here 0.9.x takes bug fixes only, no new features. When a 0.9.x release has run two weeks without needing a fix, and the release checklist is done on real screens, the same code becomes 1.0.0. If something does not work on your home, now is the best time to say so: tap **?** in the dashboard, which fills in a [bug report](https://github.com/rsundin/planview-dash/issues/new?template=bug_report.yml) without details about your home. Every report gets an answer within a few days.
+**The first stable release.** PlanView Dash shows your home as a picture in Home Assistant: lights glow where they are, windows light up, solar panels glow while they produce, and a tap on a building lifts the roof to its floor plan, where every lamp and thermostat works in place. From 1.0 on, what you set up keeps working through every 1.x version (see [What stays the same](README.md#what-stays-the-same)), and version numbers follow SemVer: 1.0.1 fixes, 1.1.0 features, 2.0.0 breaking changes.
 
-No code changed since 0.8.42; this release gathers what the road to 1.0 brought:
+Coming from SmartHomeDash or a 0.x version? Update as usual and restart Home Assistant; your dashboards, pictures and settings are kept. [Upgrading](docs/setup.md#upgrading) has the details, including the one-time move from the old name. From a version before 0.8.35: the action `planview_dash.update` is gone (updates come from the Marketplace), and an automation that read the goodnight state should use `sensor.<site>_goodnight`.
 
-- **A dashboard set up now keeps working through 1.x** (0.8.36): `site.json` says which format it is, older files are upgraded by themselves, and a file from a newer version opens read-only instead of being saved over. See [docs/configuration.md](docs/configuration.md)
-- **Final names** (0.8.37): the YAML keys, the goodnight action and sensor, the card's options and the addresses are listed under [Stable in 1.x](docs/configuration.md#stable-in-1x) and stay the same. The self-updater is gone (0.8.35); updates come from the Marketplace
-- **Lights, temperature and energy flow on any home** (0.8.38): a device that drops out shows as not responding instead of off, 0° or 0 kW; a command Home Assistant refuses says so on the screen; power in W, kW or MW; both sign conventions for grid, battery and charger; homes in Fahrenheit
-- **Docs for everyone** (0.8.39): [Troubleshooting](docs/troubleshooting.md), [Upgrading](docs/setup.md#upgrading), and [What stays the same](README.md#what-stays-the-same) in the README
-- **Floor plan pictures darkened** so lit lamps stand out, adjustable per floor plan in the setup guide (0.8.40, 0.8.41)
-- **Tested on Home Assistant 2026.11**, oldest supported 2025.6, and a security pass over everything that writes (0.8.42)
+### The picture
 
-- Restart Home Assistant after updating, so it shows the new version, then reload the dashboard
+- **The overview picture** of your property, by day and by evening, with lamps glowing in their own colour and brightness (and colour temperature), windows lit in the colour of their room's lamps, wall lamps washing the facade and solar panels glowing green while they produce. No drone? [An overview picture without a drone](docs/overview-picture.md) makes one from a 3D map and an AI image model
+- **Dusk and weather**: the day picture fades into the evening one as the sun sets; cloud, fog, rain and snow show on the picture
+- **Lift the roof**: tap a building to open its floor plan. Apartments can use a floor plan alone, and several homes each get their own panel
+- **Floor plans** with rooms tinted by temperature, a flame where a room is heating, every lamp switchable with a tap and the room panel a hold away. Open doors and windows, unlocked locks and alarms are marked on the plan and as a badge on the building; rooms with someone in them are outlined. Floor plan pictures are darkened a little so lit lamps stand out, adjustable per plan
+- **LED strips as what they are**: a light can be drawn as a spot, a glowing line or a lit surface
+- **Cameras on the picture**: place them on a floor plan or the overview, with a field-of-view wedge that turns red on motion, and tap for the live view (stills in light mode)
+- **Pinch zoom** on phones and tablets, and a trackpad pinch on computers; a pinch or a drag never switches a lamp
 
-## 0.8.42
+### Rooms, lights and heating
 
-Last cleanups before the 1.0 beta (roadmap V5).
+- **The room panel**: thermostat with target, mode and presets (Comfort, Eco, Frost …), a 24-hour temperature graph, dimmers, blinds and curtains, doors, windows and every sensor in the room
+- **Rooms linked to Home Assistant areas**: a linked room takes the area's name (and follows a rename), and its lights, thermostats and sensors show up by themselves until you place them. Floor plans can be linked to Home Assistant floors
+- **All on and all off** from the header and the lights card, with lights you can leave out
+- **Goodnight**: one tap, the lights stay on a few minutes while you go to bed, then turn off. It runs in Home Assistant as the action `planview_dash.goodnight`, with the countdown as `sensor.<site>_goodnight` on every screen, so automations, voice and NFC tags can start it too. See [Goodnight](docs/configuration.md#goodnight)
+- **Devices that drop out say so**: a lamp, sensor, thermostat or energy sensor that Home Assistant reports as unavailable shows as not responding, never as off, 0° or 0 kW, and a command Home Assistant refuses is said on the screen ("Couldn't turn on Kitchen ceiling")
+- **Names as Home Assistant shows them**, from the entity and device registry; a name set in `site.json` still wins
+- **Homes in Fahrenheit** as well as Celsius, from Home Assistant's unit system
 
-- **Tested on Home Assistant 2026.11**, the version the Marketplace came with. A new check in CI starts Home Assistant 2026.11.2 with PlanView Dash set up from YAML and checks the panel, logins, saving as administrator and refusal for everyone else, with no errors or blocking calls from PlanView Dash. The full test suite stays on 2026.10.4 until its test tool supports 2026.11. The oldest supported version stays 2025.6
-- **Security pass** over everything that writes (saving, pictures, import, restore points) against [SECURITY.md](SECURITY.md). One fix: a `site.json` nested far deeper than any real dashboard (in a save, an import, a restore point or diagnostics) is now refused as broken JSON instead of failing with a server error. SECURITY.md now says plainly that *Only for administrators* hides a dashboard's panel, while its site files stay readable for every logged-in user
-- Restart Home Assistant after updating
+### Energy, prices and weather
 
-## 0.8.41
+- **Energy flow on the picture**: one line per flow, from the sun, battery or grid to the house, car, battery or grid, in the colour of the source and with the kilowatts on it, labels at each point ("Selling 2.4 kW", "Battery charging 2.0 kW · 64 %"), and the same in a plain sentence in the energy card. Power in any of Home Assistant's units, and both sign conventions for grid and battery, with a direction check in the setup guide. See [energy](docs/configuration.md#energy)
+- **Electricity price** per hour or per quarter-hour, with "cheap now" and the cheapest hours ahead marked in the chart; Home Assistant's own Nord Pool integration works too. See [Electricity price](docs/configuration.md#electricity-price)
+- **Cards** for weather, power now, energy today, outdoor and indoor lights, scenes and scripts, and heating per room
+- **Warnings** above the picture: smoke, gas, carbon monoxide and water leaks, a window open while heating, low batteries, devices not responding, and devices the dashboard names that no longer exist in Home Assistant, with a shortcut to fix them in placement mode
 
-Darkening the floor plan picture makes a clear difference, also in the evening.
+### Setting it up
 
-- **Bigger steps** in the setup guide's **Darken the picture**: a little is now 0.25 (was 0.15), more 0.45 (was 0.3) and a lot 0.65 (was 0.45). In the evening that is 38 %, 28 % and 18 % of the picture's brightness, against 42 %, 35 % and 28 % before, so each step is easy to see
-- **The standard is a little darker**: a plan without `image.dim` now gets 0.25, 75 % brightness in the daytime and 38 % in the evening (was 85 % and 42 %)
-- A plan saved with 0.8.40's "a lot" (0.45) keeps that value, and the guide now shows it as "more"
-- Frontend only: reload the dashboard after updating
+- **Set up entirely in the UI**: add a dashboard under **Settings → Devices & services**, and a setup guide walks through the pictures, buildings, solar panels, windows, floor plans and rooms, energy and weather sensors, buttons and wall screens. Undo and redo throughout. See [Setting up a new dashboard](docs/setup.md)
+- **Quick start from Home Assistant**: a floor plan per floor with a tile per area, working before you draw anything; add a picture and draw the rooms when you like
+- **Placement mode**: pick a light, switch, thermostat, temperature sensor or camera and tap where it is; drag to move, arrow keys to nudge. The devices that matter come first, the rest are folded away
+- **Shape editing**: move and add corners, snap to other rooms, move a whole room with its lamps
+- **Backup**: export a whole dashboard as a .zip, import it into another, and the last ten saves kept as restore points. Everything is checked before it is written
+- **Two people editing** are asked before one save replaces the other's
+- **A readable `site.json`** in `<config>/planview_dash/sites/<name>/`, or dashboards defined in `configuration.yaml`. The file says its format, and older files are upgraded by themselves. See [docs/configuration.md](docs/configuration.md) and [Format and compatibility](docs/configuration.md#format-and-compatibility)
+- **Example house and apartment** to start from, also as an [online demo](https://rsundin.github.io/planview-dash/)
 
-## 0.8.40
+### Wall screens, tablets and phones
 
-Lit lamps stand out more on the floor plans.
+- **Kiosk mode** (`?kiosk`) hides Home Assistant's sidebar and the dashboard's own buttons and goes full screen. See [Wall screens and tablets](docs/setup.md#wall-screens-and-tablets)
+- **The doorbell camera** on every open screen when someone rings; **idle mode** back to the overview; **night dimming** with a faint clock until a touch or a motion sensor wakes it. See [Wall screens](docs/configuration.md#wall-screens)
+- **Light mode** (`?lite`) without blur or animation for older tablets, on by itself on weak devices, and fast on large homes: a performance budget is checked on every change
+- **Text size per device** (the **Aa** button), keyboard use, screen reader names and checked contrast. See [Text size and accessibility](docs/setup.md#text-size-and-accessibility)
 
-- **Floor plan pictures are darkened a little**, also in daytime, so a glowing lamp is easier to see. In the evening what is left is halved, as before (the default gives the same evening picture as 0.8.39)
-- **Darken the picture** in the setup guide's Floor plans step sets how much, per floor plan: off, a little (the standard), more or a lot. The thumbnail shows the result before you save. Stored as `image.dim` (0 to 0.8) in `site.json`, see [docs/configuration.md](docs/configuration.md#pictures). Light mode fades the picture instead of using a filter
-- Restart Home Assistant after updating (the save check learned `image.dim`), then reload the dashboard
+### In other dashboards
 
-## 0.8.39
+- **The card `custom:planview-dash-card`** shows the overview, a floor plan or a room inside any Home Assistant dashboard, with lamps, heating and the room panel working in it, sized by sections views, and suggested in the card picker for a lamp or thermostat in one of your rooms. See [The card](docs/setup.md#the-card)
 
-Docs for everyone who is not the author (roadmap V4).
+### Languages, help and privacy
 
-- **Troubleshooting** ([docs/troubleshooting.md](docs/troubleshooting.md)): what to do when nothing shows, a lamp does not glow, a window does not light up, temperatures look wrong, the energy flow points the wrong way, the price card is empty, the card cannot find its dashboard, a save or an import is refused, or a wall screen does not dim or wake, and how to ask for help with diagnostics. The **?** button's sheet links to it first
-- **Upgrading** in [docs/setup.md](docs/setup.md#upgrading): updates through the Marketplace, when a restart is needed and when a reload is enough, what happens to your dashboards, going back a version, and moving over from SmartHomeDash
-- **What stays the same** in the README: the promise for 1.x (your `site.json` keeps working, names stay, breaking changes wait for 2.0, supported Home Assistant versions, version numbers)
-- **A pass over the setup guide** from a clean install: buttons named as they read in English, the fields when adding a dashboard, **Link rooms and floors with the same name**, numbering in placement mode. The README lists all seven languages
-- A test checks every link between the README and the docs, including the headings they point to
-- Frontend only: reload the dashboard after updating
-
-## 0.8.38
-
-Lights, temperature and energy flow on any home, not just the one they were built in (roadmap V3).
-
-- **A device that drops out says so.** A lamp, an LED strip, a temperature sensor, a thermostat, an energy sensor or the price sensor that Home Assistant reports as *unavailable* or *unknown* is shown as not responding: a dimmed lamp with a broken ring on the floor plan, "not responding" in the room panel, the lights card and the energy card, read out by screen readers. Never as off, 0° or 0 kW. A thermostat that is not responding cannot be set until it is back
-- **The energy sentence says what it cannot see.** When a power sensor has no reading, the sentence says what it can and ends with "No reading from: Grid.", the picture labels that point "not responding", and the house's own use comes from its own sensor instead of a balance with a hole in it
-- **A command Home Assistant refuses is said on the screen.** Tapping a lamp, All on or All off, a scene, goodnight, the thermostat's plus and minus, a mode or preset, a brightness slider or blinds: if the device is offline or Home Assistant says no, a message at the bottom says "Couldn't turn on Kitchen ceiling" (in all seven languages, announced by screen readers), and the thermostat's target and the sliders go back to what the device says. Before, nothing happened
-- **Power in any of Home Assistant's units.** W, kW, MW, mW, GW and BTU/h are read as such. MW was read as watts before. A power sensor in another unit (kWh, say) is not guessed at, and one without a unit is read as watts as before; both show a warning above the picture naming the sensor
-- **The energy card follows your sign convention.** With `grid_invert` or `battery_invert` set, the grid and battery rows now read the same way as the picture and the sentence. Solar reading a few watts negative at night shows as 0
-- **Homes in Fahrenheit.** The thermostat's plus and minus step 1° when the thermostat does not give its own step, its range defaults to 45–95 °F instead of a Celsius range, and rooms without a thermostat count 66–73 °F as comfortable. Taken from Home Assistant's unit system
-- **Thermostats that report little**: without a current temperature, presets or HVAC modes, the room panel shows a dash and no empty rows of buttons
-- Tests for all of it: both sign conventions on every flow, devices dropping out, failed calls with no unhandled errors, units and °F (`tests/browser/core.test.js`)
-- Frontend only: reload the dashboard after updating
-
-## 0.8.37
-
-Final public names before 1.0 (roadmap V2). Nothing is renamed: what you have set up keeps working as it is.
-
-- **A list of what stays put through 1.x.** [docs/configuration.md](docs/configuration.md#stable-in-1x) now has a "Stable in 1.x" section: the `configuration.yaml` keys, the action `planview_dash.goodnight` and its fields, the sensor `sensor.<site>_goodnight` and its attributes, the card's `type`, `site`, `view` and `height`, the addresses (`/edit`, `?kiosk`, `?lite`) and the site folder. None of these is renamed or removed before 2.0. It also says what is not promised: the internal web addresses, browser storage and diagnostics layout
-- **A relative `sites_dir` is under the config folder.** `sites_dir: dashboards` in `configuration.yaml` was read from wherever Home Assistant's process happened to run (the config folder in the usual installs, but not always); it now always means `<config>/dashboards`. An absolute path works as before
-- **The README's YAML example** shows `require_admin` and `sites_dir`
-- Python changed: restart Home Assistant once after updating, then reload the dashboard
-
-## 0.8.36
-
-A versioned `site.json`, the first step towards 1.0 (roadmap V1): a dashboard you set up now keeps working through every later 1.x version.
-
-- **`site.json` says its format.** New dashboards, both examples and every save, import and export write `"format": 1` at the top. A file without it (everything saved up to 0.8.35) is format 1: it opens unchanged and gets the field the next time it is saved. Nothing to do by hand
-- **Older files are upgraded by themselves.** When a later version changes the layout of `site.json`, it raises the number and upgrades older files in one place, the same steps in the dashboard (on load) and in Home Assistant (before a save or import is checked), with a test that runs every step on a file saved before formats existed
-- **A file from a newer version is never saved over.** If `site.json` was saved by a newer PlanView Dash (after going back to an older release, say), the dashboard still shows it, says why it cannot be changed here, and neither opens the setup guide nor offers to save; Home Assistant refuses to save, import or restore it, and a new name from the integration's options is not written into it
-- **Diagnostics** include the format
-- **`docs/configuration.md`** documents `format` and the compatibility rule, and `mock` (test data only, outside that promise) moved out of the main table into a section of its own
-- Python changed: restart Home Assistant once after updating, then reload the dashboard
-
-## 0.8.35
-
-What the review for the HACS default catalog asked for.
-
-- **The self-updater is gone.** The action `planview_dash.update`, the **Update the dashboard** button in placement mode and the YAML options `github_token`, `repository` and `branch` are removed. Installs are managed by the Marketplace (HACS before Home Assistant 2026.11), and an integration that replaces its own files behind their back leaves them out of step. The old YAML options are ignored with a warning in the log, so nothing fails to start; remove them from `configuration.yaml` when you can. A private fork can be added to HACS as a custom repository
-- **Goodnight is a real entity.** Each dashboard has a timestamp sensor, `sensor.<site>_goodnight`: the time the lights turn off while a countdown runs, otherwise *unknown*. It is in the entity registry, so it can be renamed, hidden or used in automations, and it is removed with its dashboard. A dashboard added from the UI shows it under a device of its own. The hand-written state `planview_dash.goodnight_<site>` is gone: an automation that used it should use the sensor instead. The screens follow the sensor, also after a rename
-- **Site files no longer touch the disk on the event loop.** Finding a file under the site and frontend folders (which follows every link on the way) and checking that it is there now run together in Home Assistant's executor, so slow storage (an SD card, a network share) does not hold up other integrations
-- **The README leads with searching for PlanView Dash** in the Marketplace or HACS; adding it from a link stays as the fallback
-- Python changed: restart Home Assistant once after updating, then reload the dashboard
-
-## 0.8.34
-
-Showing PlanView Dash to the community (roadmap G1). Nothing in the dashboard changed.
-
-- **A short recording at the top of the README**: dusk falls on the example house, the lights come on one by one, the roof lifts to the floor plan and the living room panel opens. `scripts/record-demo.js` records it again from the test data (Playwright, ffmpeg and Pillow), as animated WebP and optionally as a video
-- **[Sharing your dashboard safely](docs/sharing.md)**: what to crop or blur before posting a screenshot of your home, and which files never to share (an export or `site.json`) and which are safe (problem reports and diagnostics). Linked from the README
-- **`docs/launch-posts.md`**: ready-made texts for a pinned Show and tell discussion, a Home Assistant Community thread and an r/homeassistant post, for the owner to publish
-
-## 0.8.33
-
-**SmartHomeDash is now PlanView Dash.** The new name says what sets it apart: your home on its own floor plan. Everything is renamed: the integration (domain `planview_dash`), the card, the actions, the folder for sites and the repository (`rsundin/planview-dash`; GitHub forwards the old address). Nothing in how the dashboard works changed. A new icon goes with it: a floor plan with one room lit (source in `docs/images/icon.svg`).
-
-Upgrading from 0.8.32 or earlier, once:
-
-1. In the Marketplace (HACS), remove the old entry and add the repository again from its new address, `https://github.com/rsundin/planview-dash`, then download PlanView Dash. Delete the folder `custom_components/smarthomedash` if it is still there.
-2. Restart Home Assistant, then **Settings → Devices & services → Add integration → PlanView Dash**. It finds the dashboards set up under the old name and offers to move them over: name, address, icon, settings and pictures stay, and the old entries are removed. The folder `<config>/smarthomedash/` becomes `<config>/planview_dash/`.
-3. By hand, where you use them:
-   - `smarthomedash:` in `configuration.yaml` becomes `planview_dash:`
-   - `type: custom:smarthomedash-card` on other dashboards becomes `type: custom:planview-dash-card`
-   - the actions `smarthomedash.goodnight` and `smarthomedash.update` in automations and scripts become `planview_dash.goodnight` and `planview_dash.update`, and the state `smarthomedash.goodnight_<site>` becomes `planview_dash.goodnight_<site>`
-4. Settings on each screen (text size, kiosk, night mode, unsaved drafts) move over by themselves the first time the dashboard opens.
-
-The earlier entries below use the new name throughout.
-
-## 0.8.32
-
-Ready for the Marketplace catalog.
-
-- **The HACS check now runs without exceptions.** It skipped the brands check until now; the check finds the icon in `custom_components/planview_dash/brand/`, which Home Assistant shows from 2026.3 on, so no entry in home-assistant/brands is needed. A clean run is what the catalog asks for
-- **`docs/marketplace-submission.md`**: the steps and the ready-made pull request text for adding PlanView Dash to the catalog the Marketplace searches (hacs/default). Only the owner can open it, after this release is published
-- A test keeps the icon sizes, `hacs.json` and the no-exceptions rule in place
-- Nothing in the dashboard changed; no restart or reload needed
-
-## 0.8.31
-
-The last three points from the code review.
-
-- **Two people editing no longer overwrite each other without knowing.** A save now names the version of the dashboard it builds on. If someone else, or another tab, has saved since you opened the setup guide or placement mode, you are asked first: **Save anyway** replaces their version (it stays as a restore point under **Backup**), **Cancel** saves nothing and keeps your changes on screen. A draft in placement mode remembers the version it was started from
-- **Home Assistant's own texts in all seven languages.** The form for adding a dashboard, its settings and the names of the actions were Swedish and English only; Danish, German, Finnish, Norwegian (bokmål) and Dutch are added (machine-assisted, like the dashboard's own)
-- **A test run in WebKit**, the engine of Safari on an iPad: the overview, a floor plan, a room and a lamp, the setup guide and placement mode (`tests/run.sh webkit`, and in CI). The other browser tests still run in Chromium
-- **Lint**: `ruff` for the Python and `eslint` for the JavaScript, with rules that find mistakes (unused and undefined names, markup built from data), none about layout (`tests/run.sh lint`, and a **Lint** job in CI). It found one unused import and three unused names; nothing that changed how the dashboard works
-- Python changed, so restart Home Assistant once after updating
-
-## 0.8.30
-
-Faster start in Home Assistant, from the same review.
-
-- **The dashboard shows as soon as the overview's pictures are in.** In the Home Assistant panel every picture of the site (each floor plan, each room photo) was fetched before anything was drawn. Now only the overview's are waited for; the rest follow in the background, and a floor plan opened before its picture has arrived waits for that one picture. A home with many plans and photos starts as fast as a small one. Placement mode still fetches everything first, since it shows all plans at once
-- **Changing view while another is on its way no longer jumps back.** Tapping a building and then something else during the roof animation could end on the first plan
-- **Less work per update from Home Assistant.** An update that changes no state (a theme, the sidebar) is skipped, and comparing the states makes no list of them first. The gain is small: about 0.9 ms down to 0.55 ms per update with 3000 entities
-- Frontend only: reload the dashboard after updating
-
-## 0.8.29
-
-Five fixes from a review of the whole code.
-
-- **The update action no longer misses a restart.** It compared a fixed list of files, and `goodnight.py` and `diagnostics.py` were not on it, so an update of only those said "reload the dashboard". Every Python file and translation now counts
-- **Goodnight only starts for a dashboard that exists.** The action is open to every user and took any site name, each one leaving a state and a timer behind. An unknown site is now refused
-- **A device removed from Home Assistant disappears from the dashboard** at once, instead of showing its last state until the page was reloaded
-- **No more memory kept after a restart in place.** Saving in the setup guide or leaving placement mode restarts the dashboard without reloading the page; the previous run's pictures and its keep-the-screen-on listeners are now released
-- **Two starts at the same moment no longer collide.** A start overtaken by a newer one stops instead of drawing over it with buttons that do nothing
-- New tests for each of them. Python changed, so restart Home Assistant once after updating
-
-## 0.8.28
-
-More languages.
-
-- **Danish, German, Finnish, Norwegian (bokmål) and Dutch.** Pick one under **Basics** in the setup guide. They are machine-assisted and marked so in the list; corrections from native speakers are welcome, and `docs/translating.md` shows how (one JSON file per language, edited on GitHub)
-- **Numbers and times follow the language**: `2,7 kW` and `08.58` in Danish, `2.7 kW` in English. A site.json without `locale` uses the language's own, and picking a language in the guide sets it
-- **A new dashboard starts in Home Assistant's language** when the dashboard has it (Norwegian `no` and `nn` give bokmål), otherwise in English. The card for other dashboards shows its editor and messages in the user's language the same way
-- The price card's cheapest and dearest hours now use the site's time format too
-- New tests: every language file has the same keys and placeholders as English, the machine-assisted ones say so, the card and the starter site know every language; both examples and the setup guide open in each language with no raw keys and the right number format
-- Python changed (the starter site's language), so restart Home Assistant once after updating
-
-## 0.8.27
-
-LED strips drawn as what they are.
-
-- **A light can be a line or a surface.** In placement mode a placed light has **Drawn as**: **Spot**, **Line** or **Surface**. A line follows a strip under the kitchen cabinets or along a stair, with as many bends as it needs; a surface covers a lit ceiling cove or a backlit panel. They are drawn with the same tool as rooms
-- **It glows along its whole length** in the light's own colour and brightness, on the floor plan and on the overview picture. **Width** sets how wide a line is drawn
-- **Tap anywhere on it** to switch it, hold to open the room, like a lamp. Drag it in placement mode to move all of it; **Spot** makes it a round lamp again
-- **Light mode** draws a plain coloured line or surface without the soft glow, so older tablets keep up
-- The example house has a strip under the kitchen cabinets. In site.json a strip is a light with `line` or `area` instead of `at`, and on the overview a zone lamp with `"type": "line"` or `"area"`; see docs/configuration.md. The file is checked for them before it is saved, so restart Home Assistant once after updating
-- New tests: drawing a line and a surface in placement mode, bending, width, dragging and undo, switching by a tap anywhere on the strip, its colour and brightness following the light, light mode without blur, strips on the overview, and the performance budget with strips on the large test site
-
-## 0.8.26
-
-Larger text, the keyboard and screen readers.
-
-- **Text size per device.** A new **Aa** button in the header steps between normal, large and extra large. The header, cards, room panel, warnings and buttons grow together, touch targets included, and so do the labels and lamps on the picture. The choice stays on that device, so the wall screen can have large text while a phone keeps its own. Checked at 390 px wide: nothing sticks out
-- **Keyboard.** Space now opens buildings and rooms like Enter does. The closed room panel is no longer in the Tab order (it could take focus while off screen), and when it closes, focus returns to the room it was opened from
-- **Screen readers.** Lamps on the picture say whether they are on, rooms say their temperature, and the price chart and the temperature graph are read as a sentence with the value now, the lowest and the highest. The notices above the header are a region of their own
-- **Contrast.** The small labels in the cards (INDOOR, OUTDOOR and the like) were too faint, 3.6:1; they are now 6.6:1. Text on the picture was measured against its backing in day and evening and already passed
-- New tests: axe-core on both examples (start view, floor plan, room panel, evening, desktop and phone), a keyboard-only run that opens a room and switches a lamp, names and states for screen readers, contrast of the text on the picture, and large and extra large text on a phone. The browser tests now need `axe-core` as well as Playwright
-## 0.8.25
-
-Cameras on the picture.
-
-- **Place cameras** on a floor plan or the overview picture in placement mode. They have a group of their own in the list and can go anywhere, also outside the rooms
-- **A tap opens the camera** in the window the doorbell uses: live where Home Assistant streams it, otherwise a new still every two seconds. With several cameras on a plan, arrows step between them. It closes after two minutes, on ×, a tap outside or Escape
-- **Which way it looks.** ↺ and ↻ in placement mode turn a field-of-view wedge in steps of 45°. The wedge turns red while the camera's motion sensor is on, or while the camera itself reports motion
-- **Light mode shows stills**, also for the doorbell, so an older tablet does not have to play a stream
-- The example house has a camera in the garden and one on the driveway. A new dashboard from the example starts without them
-- site.json is checked for cameras before it is saved: a `camera.*` entity and an `[x, y]` spot. Cameras that Home Assistant does not know show up under the missing devices
-- New tests: the wedge on motion, opening and stepping through cameras, stills in light mode, placing, turning, linking a motion sensor and dragging in placement mode, and the doorbell in the same window
-
-## 0.8.23
-
-Goodnight: one tap, and the lights stay on while you go to bed.
-
-- **A Goodnight button** behind the lamp in the header and in the lights card. The lights stay as they are for five minutes, then the same lights as **All off** turn off
-- **The countdown on every screen.** "Goodnight: everything off in 4:12" with **Cancel**, on every open screen of the dashboard, also in kiosk mode
-- **It runs in Home Assistant**, not in the browser: a tablet that sleeps or reloads does not stop it. It is the new action `planview_dash.goodnight`, so automations, voice and NFC tags can start it too. Restart Home Assistant once after updating
-- **Set under Buttons** in the setup guide: show it or not, the minutes, and a script of your own to run when the lights go off (to lock up, turn the TV off, lower the heating). PlanView Dash does not write any scripts or automations into your configuration
-- The action is open to every logged-in user, like switching a lamp, and only turns off lights and switches and runs a script (SECURITY.md)
-- New tests: under Home Assistant, the countdown turning the lights off and running the script on time, cancelling, starting over, refusing other entities and stopping on unload; in the browser, the countdown, Cancel, a countdown started elsewhere, and the setup guide's settings
-
-## 0.8.22
-
-All lights on and off with one button.
-
-- **All on, beside All off.** The lights card had **All off**; it now has **All on** too. All on takes one tap, All off still asks for a second tap so nobody is left in the dark by mistake
-- **In the header, also on wall screens.** A lamp button in the header opens both, so they are one tap away from the picture and the floor plan without scrolling to the lights card. It stays in kiosk mode, and the lamp lights up while any light is on. Not shown in the card for other dashboards
-- **Choose what "all" means.** Under **Buttons** in the setup guide, the buttons can be turned off, and lights can be left out of them (garden lights on a schedule, a night light). In site.json: `"all_lights": { "enabled": false, "exclude": ["light.garden"] }`. "All" is every light on the dashboard, including the ones found in linked areas
-- New tests: on in one tap and off in two from the header, an excluded light left alone from the lights card, the header control in kiosk mode on a phone, and turning the buttons off in the setup guide
-
-## 0.8.21
-
-The picture as a card in any Home Assistant dashboard.
-
-- **New card: `custom:planview-dash-card`.** Shows the overview, one floor plan or one room of a PlanView Dash dashboard inside any other dashboard. It comes with the integration and is added to every dashboard by itself: find it under **Add card**, pick the dashboard and what to show. Reload the browser page once after updating
-- **Only the picture.** No header, energy cards or warnings. Tapping a building opens its floor plan, tapping a room opens the room panel inside the card, and lamps and heating work as in the dashboard. A card for a floor plan or a room stays there
-- **Sized by the dashboard.** In a sections view the card takes the size you drag it to (full width and six rows to start with). In other views it is 400 px high, or the **Height** you set
-- **Suggested in the card picker** (Home Assistant 2026.6 and newer): picking a lamp or a thermostat that is in a room of a dashboard suggests a card for that room
-- **The same code as the dashboard.** The card runs the dashboard in a frame of its own, as the sidebar panel does, so its styles and fonts cannot disturb Home Assistant's and nothing in the dashboard itself changed. Site files still come through Home Assistant's login; the card cannot change anything in the setup
-- A dashboard that cannot be found now says "Cannot find …/site.json" also when the texts had not arrived yet (it could show the bare key `site.notFound`)
-- New tests: the card in a stand-in Home Assistant dashboard on a phone and a desktop, the three kinds of view, lamps through Home Assistant's services, the editor, the suggestions, and under a real Home Assistant that the card's files are served and its module is added once
-
-## 0.8.20
-
-A tidier codebase for what comes next. Nothing looks or works differently.
-
-- **One file per language.** The texts moved from `i18n.js` to `frontend/i18n/en.json` and `sv.json`. The dashboard fetches English and the site's own language before it draws anything, so a site in English no longer downloads the Swedish texts and the other way round. Adding a language is now one new file and one line
-- **The setup guide in one module per step.** `ui/setup.js` (837 lines) became `ui/setup/`: the frame with undo, save and close, and a module each for basics, the overview picture, floor plans, energy, buttons, wall screen and lights, plus the shared helpers, drawing and the quick start
-- New tests: every language file has the same keys and placeholders, every text the code asks for exists, the standalone page lists every module, the texts are fetched once with the page's version, and a start that fails still shows its message as text
-## 0.8.19
-
-Tests against a real Home Assistant, and three faults they found.
-
-- **Adding a dashboard with the default name "Home" works again.** Home Assistant has a page of its own at `/home` (and `/light`, `/climate`, `/security`), so the name suggested by the form was refused with "address already in use". When no address is typed and the one made from the name is taken, `-dash` is added (`/home-dash`). An address you type yourself is still refused if it is taken. The YAML example in the README uses `my-home`
-- **Export, versions, import and restore answer "administrators only" on every Home Assistant version.** On Home Assistant 2024.12 and older, a user who is not an administrator got an internal error (500) from these addresses instead of the refusal. Nothing was exported or written, but the check depended on a detail of the web library
-- **New tests in `tests/ha/`** run the integration under Home Assistant itself (`pytest-homeassistant-custom-component`): setup from YAML and from the UI, the starter site for a house and an apartment, the config flow and its refusals, options (rename in place, reload for the rest), the views without a login, as an administrator and as another user, the sidebar following a name saved in the setup guide, diagnostics without anything that names the home, and unload, reload and removal. CI runs them on Home Assistant 2026.10.4 and on 2025.6.3
-- **Home Assistant 2025.6 or newer is now required** (was 2024.8). The tests show that the older versions never worked fully: **Configure** on the integration fails before 2024.12, and setups with `github_token` or `repository` in YAML do not start before 2025.6
-## 0.8.18
-
-A tap right after flicking the zoomed picture is no longer lost.
-
-- **The cause was real, not test timing:** with the picture zoomed in, a fast one-finger drag that lifts while still moving made the browser (Chromium: Chrome on Android, the companion app, Fully Kiosk) start a fling of its own, although the page does not scroll. While a fling runs, the browser swallows the next tap to "stop the fling", so a tap on **Reset zoom**, a lamp or a room within a moment after the flick did nothing. A drag that came to rest before lifting was never affected
-- The dashboard now consumes the finger movement itself while the picture is zoomed or pinched, so the browser never starts a scroll or fling there. One finger on the picture at normal size still scrolls the page as before
-- The pinch zoom test taps straight after the drag again, without the wait 0.8.13 added, and checks that movements are consumed only while zoomed or pinching. It passed 20 runs in a row; before the fix about 1 run in 25 lost the tap on the test machine
-## 0.8.17
-
-Install docs for the Marketplace, which replaced HACS in Home Assistant 2026.11.
-
-- README and the setup guide (`docs/setup.md`) install through **Settings → Marketplace → Add from link** with the repository's address. Setup starts right away; a restart is still needed after updates. Both mention the community-code notice and the GitHub sign-in that *Add from link* asks for, and point to SECURITY.md for what PlanView Dash can reach
-- The HACS steps stay as a one-line note for Home Assistant before 2026.11
-- Updating refers to the Marketplace; `planview_dash.update` is for setups without it
-- A test fails if README or the setup guide describe the old HACS menus outside that note
-## 0.8.16
-
-Backups and moving a dashboard: export, import and restore points.
-
-- **Backup** is a new last step in the setup guide, for administrators in the Home Assistant panel
-- **Download .zip** exports the dashboard as one file: site.json and every picture in its folder
-- **Choose .zip …** imports such a file into this dashboard, after confirming. Home Assistant checks the whole file before writing anything: only site.json (with the same check as a save) and jpg, png or webp pictures by content, no names that lead out of the folder, and limits of 100 MB unpacked, 25 MB per picture and 200 files. A .zip of the dashboard's folder itself works too. To move a dashboard to another Home Assistant, add a new dashboard there and import into it
-- **Restore points**: every save now keeps the last 10 versions of site.json (`site.json.1` the newest, to `site.json.10`) instead of a single `site.json.bak`. The guide lists them with when each was saved and how many floor plans and rooms it has, and **Restore** brings one back after confirming. An import or a restore keeps the replaced settings as a restore point, so it can be undone the same way. Saving the same file twice adds no version
-- Diagnostics count the kept versions
-- SECURITY.md describes the new endpoints and their checks
-
-## 0.8.15
-
-Editing rooms and lamps without starting over.
-
-- **Undo** and **Redo** in the setup guide, also Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z outside text fields. Everything changed since the guide opened can be stepped back until it is saved; typing in one field counts as one step, and undoing back to the start lets the guide close without asking
-- **Undo** and **Redo** in placement mode too, kept with the draft in the browser across the restarts placement mode makes, and cleared when the draft is saved to Home Assistant or thrown away
-- **Edit shape** next to each room under *Floor plans* and each building under *Overview picture*: drag a corner, drag the dot on an edge to add a corner, press and hold (or right-click) a corner to remove it, drag inside to move the whole shape. A room moved as a whole takes its lamps and name label along, and lamps left outside new corners move inside. The editor has its own undo and redo, and Cancel
-- **Snap to other shapes**, on by default and remembered per screen: a corner lands on a nearby corner or edge of another room or building, when editing and when drawing a new one; a moved shape snaps by its nearest corner
-- Arrow keys nudge the selected corner or shape in the editor, and the selected lamp in placement mode; Shift moves ten times as far. A nudged lamp is saved when the keys rest, and can go into the next room
-- Disabled buttons look disabled
-
-## 0.8.14
-
-Report a problem from the dashboard, without giving away anything about your home.
-
-- **?** in the top bar, and **Report a problem** below the setup guide's steps, show the text that would go into a GitHub issue: PlanView Dash and Home Assistant versions, how the dashboard is opened, browser, screen size, kiosk and light mode, language, counts of floor plans, rooms and devices by kind, the warnings by kind and count, and the last save Home Assistant refused. Never entity ids, room or area names, addresses or pictures. The text can be changed before **Open the issue on GitHub** opens the bug report form with it filled in. Hidden in kiosk mode
-- Home Assistant **Download diagnostics** for PlanView Dash (Settings → Devices & services → PlanView Dash → ⋮): versions, the dashboard's options with its name, folder and address redacted, whether an update token is set (not the token), and for its site folder the number and size of pictures, whether site.json is valid, and counts of plans, rooms, lamps, thermostats, sensors, scenes and devices that Home Assistant does not know
-- Issue templates: the bug report has fields for what the dashboard fills in, for the device (wall tablet, phone, computer) and for the diagnostics file; a new feature request template; questions and ideas are pointed to GitHub Discussions
-- README has a *Help, questions and ideas* section, and ROADMAP points ideas and votes to Discussions
-
-## 0.8.13
-
-A calmer placement mode, outdoor lamps that find their area, and steadier tests.
-
-- Placement mode lists lights first, then temperature sensors, thermostats and switches, with the ones not placed at the top of each group
-- What matters less is folded away under **Show n more**, and search still finds it: switches (most are plugs and settings rather than lamps; one can still be placed as a lamp), a device's own diagnostic or hidden entities, and temperature sensors in no room or in a room that already shows one
-- Lights in the same Home Assistant area as an outdoor lamp group on the overview picture switch with it by themselves, as lights in a room's area already show up in the room
-- The group headings count only what is still to place: lights placed automatically no longer count as not placed
-- A steadier performance test. It runs last and on its own in `tests/run.sh`: beside the other browser test files it measured the competition for the CPU (108–114 ms instead of about 95). And it checks the three longest frames during the 30 s of state changes, which must average 100 ms or less with none over 150 ms, since the same frame measured 70–105 ms between runs of the same code. Making the side cards contain their layout and paint was tried and made no measurable difference
-- The pinch zoom test waits a frame between the drag and the tap on "Reset zoom". On a loaded test machine the tap right after the drag was sometimes lost (about one full run in three locally); with the wait it passed 14 runs in a row
-
-## 0.8.12
-
-A working dashboard before you draw anything: floor plans straight from Home Assistant's floors and areas.
-
-- **Start from my Home Assistant** in the setup guide makes a floor plan for each floor, with a tile per area on it, linked to the area. A room with more devices gets a wider tile. Areas on no floor share one plan. It is offered on a new dashboard, under *Basics* and *Floor plans*, and replaces the example pictures
-- Lights, thermostats and temperature sensors in each area show up on their tile by themselves, the lights in a row below the room's name. Nothing about them is written to site.json until you place them
-- A tile plan can get a picture later: **Upload a picture of the plan** stretches the tiles over it, and each room gets a **Draw** button to draw it where it really is, keeping its area and its lights
-- Test areas can be put on test floors (`floor_id` in `mock.areas`)
-
-## 0.8.11
-
-Clear messages when site.json and Home Assistant disagree.
-
-- Devices named in site.json that Home Assistant does not know, because they were renamed or removed, show as a warning above the picture: "3 devices in the dashboard no longer exist in Home Assistant". It unfolds to list each one and where it is used. Until now they quietly disappeared from the picture
-- For administrators the warning has **Show in placement mode**, which opens placement mode with only the missing devices listed. Place one again under its new name, or remove it from the dashboard in one go: out of rooms, zones, windows, sensor lists, scenes and heating devices
-- Home Assistant checks site.json before saving it: the types of the top-level keys, floor plans and rooms as objects, and outlines and solar panels as lists of `[x, y]` number pairs. A file that fails is not written, and the message says where, such as `floorplans[0].rooms[2].area should be a list of at least three [x, y] number pairs`
-- A refused save in placement mode or the setup guide shows Home Assistant's message instead of a status code and raw JSON
-
-## 0.8.10
-
-Electricity prices per quarter-hour, as Nord Pool sets them since October 2025.
-
-- The price card keeps prices at the resolution they come in: per hour, or per quarter-hour (92 or 100 on the days the clocks change). Until now quarter-hour prices were averaged per hour, which hid the swings within the hour
-- The chart has one bar per quarter-hour and marks the one running now. "Cheap now" compares the quarter running now
-- The cheapest hours are counted in quarter-hours, so a window can start at a quarter past, and still run across midnight into tomorrow's prices
-- Price lists with start and end times (`raw_today`, `raw_tomorrow`) are placed by their times, not by their order
-- Home Assistant's own Nord Pool integration works too: when the price entity has no price attributes, the card asks its `nordpool.get_prices_for_date` action. See *Electricity price* in `docs/configuration.md`
-
-## 0.8.9
-
-Linking a floor plan to its building is easier to find in the setup guide.
-
-- Each floor plan under *Floor plans* has a **Building on the overview picture** choice: the building that lifts its roof and opens the plan when tapped. Until now the link could only be set under *Overview picture*, in an unlabelled list further down the page
-- Under *Overview picture* each building now says which plan it opens ("Opens: House"), and says to add a floor plan first when there is none
-- Drawing a building when the site has exactly one floor plan that no building opens yet links the two, as uploading a plan already did the other way round
-
-## 0.8.8
-
-Names as Home Assistant shows them, ready for the 2026.11 naming change.
-
-- Devices, sensors and lamps are named the way Home Assistant names them: the entity's own name after its device's name ("Kitchen Ceiling"), or the device's name alone, from Home Assistant's registry. `friendly_name`, which Home Assistant is phasing out, is only a fallback now. A name set in site.json still wins. This covers the room panel, warnings, placement mode, the setup guide and the doorbell window
-- Test data can give entities a device (`mock.devices`) to try the new names. See *Names* in `docs/configuration.md`
-
-## 0.8.7
-
-Faster on large homes and old tablets, with a performance budget the tests check.
-
-- Floor plans are built the first time they are opened. A large home starts with about half as many elements on the page
-- Changes from Home Assistant are drawn once per screen refresh, however many arrive at once, and warnings, labels and the heating list are only redrawn when what they show changes
-- While the page is hidden or the night dim is on, animations, the clock and test data rest, and nothing is redrawn until the page shows again
-- Light mode also turns off the remaining filters: the evening darkening of the pictures now uses a plain dark layer, and floor plan pictures fade instead of being filtered
-- A performance test on a large test home (3 floor plans, 40 rooms, 120 lamps, 60 sensors) with the CPU slowed down four times: under 4,000 elements on the overview, first render under 2 s, and no task over 100 ms during 30 s of state changes. It also checks the pause and light mode. See *Performance* in `docs/setup.md`
-
-## 0.8.6
-
-Nothing changes in the dashboard itself; this release adds the safety net for the work ahead.
-
-- Automated tests in the repository: `tests/run.sh` runs backend tests (safe paths and symlinks, picture checks, chunked uploads, size limits, admin-only writes, starter sites, the updater) and browser tests in Chromium (both examples at five screen sizes, kiosk mode, rooms and lamps, night mode, pinch zoom, dragging a lamp in placement mode, the setup guide, warnings and badges, the energy flow)
-- A new **Tests** check runs them on every push and pull request
-- The JavaScript syntax check reads the dashboard's files as modules, so it no longer lets some syntax errors through
-
-## 0.8.5
-
-- Renaming a dashboard in the setup guide renames its entry in Home Assistant's sidebar too, at once and without a restart. Renaming it under *Settings → Devices & services → PlanView Dash → Configure* also changes the name in the dashboard's heading. Dashboards set up in YAML keep the sidebar title written there
-
-## 0.8.4
-
-- Setup guide, Energy: a new **Direction** section shows how the dashboard reads the battery and the grid right now ("Battery charging 1.2 kW"), with a box to turn each one around. Inverters disagree on which way is positive, and since 0.8.2 the labels on the picture make a wrong sign easy to see. The boxes set `battery_invert` and `grid_invert`
-
-## 0.8.3
-
-- The **Kiosk mode** button opens a small wall screen sheet: start kiosk mode, light mode on this device, and **Test the doorbell**, which shows the camera window on that screen without ringing anything
-- Light mode on this device is Auto, On or Off. Auto follows the setup guide's "light mode on every screen" and otherwise turns light mode on for older tablets with two cores or 2 GB of memory or less. `?lite` and `?lite=0` still work
-
-## 0.8.2
-
-- Clearer energy flow on the overview picture: one line for each real flow, from where the power comes from to where it goes, in the colour of the source (yellow sun, blue grid, green battery). Lines are wider with more power and carry their kilowatts, and solar charging the battery runs straight from the roof to the battery instead of through the house
-- Labels at the battery, the grid, the car charger and the house say what each one is doing, such as "Selling 2.4 kW" or "Battery charging 2.0 kW · 64 %"
-- The energy card says the same in one sentence: "The sun gives 6.2 kW: 1.8 kW to the house, 2.0 kW to the battery and 2.4 kW sold to the grid."
-
-## 0.8.1
-
-- Placement mode: tap a lamp on a floor plan or the overview picture to select it. A tag over the lamp shows its name and entity id, also while you drag it and after the page reloads with the lamp in its new spot, so lamps with the same name are easy to tell apart
-
-## 0.8.0
-
-Wall screens.
-
-- Doorbell camera: when the doorbell rings, every open dashboard shows the camera in a window that closes by itself after a minute, or at a tap. Live where Home Assistant can stream the camera, otherwise a new still every two seconds. A doorbell can be a binary sensor or an event or button entity
-- Idle mode in kiosk mode: back to the overview after two minutes without touch, open panels closed. At night, between hours you choose, the screen dims with a faint clock; a touch or a motion sensor wakes it, and a touch on the dimmed screen never switches anything
-- Light mode for older tablets: no blur, blending or animation. Add `?lite` to one screen's address (`?lite=0` turns it off), or turn it on for every screen in the setup guide
-- The setup guide has a new **Wall screen** step for all of this; see `wall_screen` in docs/configuration.md
-- The examples ring their doorbell with `?ring` on test data
-
-## 0.7.1
-
-- Placement mode: drag a lamp to move it, with the mouse or a finger, also while zoomed in. On a floor plan a lamp can be dropped in another room; on the overview picture each fixture of an outdoor lamp moves on its own
-- Lamps set by colour temperature glow in that temperature, from candle-warm to daylight, on the floor plans and the overview picture
-
-## 0.7.0
-
-- Energy flow on the overview picture: dots running from the solar panels, the grid and the battery to the house, and from the house to the grid, the battery and the car charger, faster with more power. Place the house, grid, battery and charger in the setup guide
-- Dusk: with the header on Auto, the day picture fades into the evening picture as the sun goes down instead of switching at sunset
-- Weather on the picture: a light veil for cloud and fog, falling rain and snow
-- Blinds and curtains: up, stop, down and position in the room panel; windows glow less while they are closed; garage doors and gates count as doors
-- Electricity price: "cheap now" or "expensive now", and the cheapest hours ahead (today or tomorrow) marked in the chart
-- Rooms named like a Home Assistant area count as linked to it, and lights, thermostats and temperature sensors in a linked room's area show up in the room by themselves until placed
-- The setup guide asks for the Home Assistant area while you draw a room or a building. Buildings can be linked to an area too: one without a floor plan, such as a shed, opens its area's lights, heating and sensors when tapped, and gets a badge when a door there is open
-- The examples have a car charger, blinds and curtains in their test data
-
-## 0.6.1
-
-- Fixed: leaving placement mode in the Home Assistant panel left its list on screen
-- Closing the setup guide with unsaved changes offers **Close without saving** and **Save** instead of needing a second tap
-- A new dashboard's setup guide no longer opens by itself on every visit once it has been closed in that browser
-
-## 0.6.0
-
-- Doors, windows, locks, presence and alarms per room: found in the room's Home Assistant area, or listed under `sensors`. Open doors and windows, unlocked locks and alarms get an icon on the floor plan and a badge on the building in the overview picture; rooms with motion or presence get a faint outline; the room panel lists every sensor
-- Warnings above the picture: smoke, gas, carbon monoxide and water leaks, a door or window open while the room is heating, low batteries and devices not responding. Configurable with `warnings` in site.json
-- Floor plans can be linked to Home Assistant floors: named after the floor and listed in floor order. **Link rooms and floors with the same name** in the setup guide links both at once
-- The examples show a few sensors in their test data
-
-## 0.5.2
-
-- Lamps glow in their own colour and brightness on the overview picture and the floor plans, windows in the colour of the room's lamps; lamps that report no colour keep the warm glow
-- Online demo on GitHub Pages: the example house and apartment on test data
-- ROADMAP.md with what comes next
-
-## 0.5.1
-
-- Pinch with two fingers to zoom the overview picture and floor plans on phones and tablets, drag to move around, **Reset zoom** to go back; a trackpad pinch works on computers. Taps on lamps, rooms and buildings still work while zoomed, and a pinch or drag never switches a lamp
-- Fixed: pictures larger than about 64 kB were saved cut off when uploaded in the setup guide, and a large `site.json` could not be saved; `planview_dash.update` downloads were affected the same way
-- Placement mode on phones: the list is a sheet at the bottom instead of covering the picture
-- Setup guide on phones: the steps are one row that scrolls sideways, so each step's content starts at the top
-
-## 0.5.0
-
-- Rooms link to Home Assistant areas: pick an area for a room in the setup guide and it takes the area's name, lights, thermostat and temperature sensor; rooms named like an area can be linked in one go
-- Room names follow their area when it is renamed in Home Assistant
-- Placement mode shows the area of unplaced entities and searches by area
-- Outdoor lamps in the same area share one switch in the lights card
-- No drone? A guide in the setup guide and in docs/overview-picture.md makes the day and evening pictures from a 3D map screenshot and an AI image model, with prompts to copy
-
-## 0.4.0
-
-First public version.
-
-- Sidebar panel behind the Home Assistant login; no access tokens
-- Set up from the UI: add a dashboard, choose house or apartment, then a setup guide for pictures, buildings, solar panels, windows, floor plans and rooms, energy and weather sensors, and buttons
-- Placement mode: tap where each light, switch, thermostat and temperature sensor is
-- Overview picture with live lamp light, lit windows and solar panels glowing while they produce; separate evening picture
-- Lift the roof to open a building's floor plan; rooms tinted by temperature, lamps switchable in place
-- Room panel with thermostat target, mode and presets, 24-hour temperature graph and dimmers
-- Cards for weather, power, energy, hourly electricity price, lights, scenes and scripts, and heating
-- Example house and apartment as starting points
-- Wall screen layout, evening dimming, Swedish and English
+- **Seven languages**: Swedish, English, and machine-assisted Danish, German, Finnish, Norwegian and Dutch, with numbers and times in the language's own format. Corrections welcome: [docs/translating.md](docs/translating.md)
+- **Help**: [Troubleshooting](docs/troubleshooting.md), and the **?** button, which fills in a bug report without details about your home. Home Assistant's diagnostics for PlanView Dash hold counts and sizes only
+- **Private by design**: the dashboard runs behind Home Assistant's login with no access tokens, site files are served only to logged-in users and written only by administrators, and nothing calls outside services; the typefaces ship with it. See [SECURITY.md](SECURITY.md) and [Sharing your dashboard safely](docs/sharing.md)
+- **Supported Home Assistant versions**: 2025.6 and newer, tested on 2025.6 and 2026.11. Install from the Marketplace (HACS before Home Assistant 2026.11)

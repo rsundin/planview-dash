@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting. PlanView Dash is in its **beta for 1.0** (0.9.x): reports now decide what 1.0 fixes, and every one gets an answer within a few days.
+        Thanks for reporting. Every report gets an answer within a few days, and problems with lights, temperature or energy flow come first.
         Issues are public: **do not paste access tokens, passwords, addresses or pictures of your home you would not want public.**
         The quickest way here is **Report a problem** (the **?** button) in the dashboard: it fills in the versions and the details below for you. Questions and ideas are welcome in [Discussions](https://github.com/rsundin/planview-dash/discussions).
   - type: textarea
@@ -22,7 +22,7 @@ body:
     id: version
     attributes:
       label: PlanView Dash version
-      placeholder: "0.9.0"
+      placeholder: "1.0.0"
     validations:
       required: true
   - type: input
