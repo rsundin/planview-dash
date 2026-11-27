@@ -721,5 +721,15 @@
   "music.chipMany": "Läuft an {n} Orten",
   "music.pauseIn": "Pausieren in {rooms}",
   "music.goodnight": "Auch Musik pausieren und Fernseher ausschalten",
-  "card.view.music": "Musik auf dem Grundriss"
+  "card.view.music": "Musik auf dem Grundriss",
+  "ambient.now": "Jetzt",
+  "ambient.today": "Heute",
+  "ambient.tomorrow": "Morgen",
+  "ambient.outdoor": "{temp} draußen",
+  "setup.ambient": "Das Haus als Bildschirmschoner",
+  "setup.ambientOn": "Das Haus im Vollbild mit Uhr zeigen, wenn niemand den Bildschirm berührt",
+  "setup.ambientHelp": "Nur im Kioskmodus. Eine große Uhr, die Außentemperatur, der nächste Kalendertermin, Warnungen und was gerade läuft. Eine Berührung führt zurück zum Dashboard; nachts übernimmt der gedimmte Bildschirm.",
+  "setup.ambientAfter": "Startet nach",
+  "setup.ambientSame": "Der Leerlaufzeit oben",
+  "setup.ambientCalendar": "Kalender"
 }

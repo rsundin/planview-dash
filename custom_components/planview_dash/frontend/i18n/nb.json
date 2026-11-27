@@ -721,5 +721,15 @@
   "music.chipMany": "Spiller på {n} steder",
   "music.pauseIn": "Pause i {rooms}",
   "music.goodnight": "Pause også musikken og slå av TV-ene",
-  "card.view.music": "Musikk på plantegningen"
+  "card.view.music": "Musikk på plantegningen",
+  "ambient.now": "Nå",
+  "ambient.today": "I dag",
+  "ambient.tomorrow": "I morgen",
+  "ambient.outdoor": "{temp} ute",
+  "setup.ambient": "Huset som skjermsparer",
+  "setup.ambientOn": "Vis huset i fullskjerm med en klokke når ingen rører skjermen",
+  "setup.ambientHelp": "Bare i kioskmodus. En stor klokke, utetemperaturen, neste hendelse i en kalender, varsler og hva som spilles. En berøring går tilbake til panelet; om natten tar den dempede skjermen over.",
+  "setup.ambientAfter": "Starter etter",
+  "setup.ambientSame": "Hviletiden over",
+  "setup.ambientCalendar": "Kalender"
 }

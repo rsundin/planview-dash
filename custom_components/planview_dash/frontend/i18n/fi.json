@@ -721,5 +721,15 @@
   "music.chipMany": "Soi {n} paikassa",
   "music.pauseIn": "Keskeytä: {rooms}",
   "music.goodnight": "Keskeytä myös musiikki ja sammuta televisiot",
-  "card.view.music": "Musiikki pohjapiirroksessa"
+  "card.view.music": "Musiikki pohjapiirroksessa",
+  "ambient.now": "Nyt",
+  "ambient.today": "Tänään",
+  "ambient.tomorrow": "Huomenna",
+  "ambient.outdoor": "{temp} ulkona",
+  "setup.ambient": "Talo näytönsäästäjänä",
+  "setup.ambientOn": "Näytä talo koko näytöllä kellon kanssa, kun kukaan ei koske näyttöön",
+  "setup.ambientHelp": "Vain kioskitilassa. Iso kello, ulkolämpötila, kalenterin seuraava tapahtuma, varoitukset ja mitä soi. Kosketus palaa näkymään; yöllä himmennetty näyttö ottaa vallan.",
+  "setup.ambientAfter": "Alkaa",
+  "setup.ambientSame": "Yllä oleva lepoaika",
+  "setup.ambientCalendar": "Kalenteri"
 }

@@ -720,5 +720,15 @@
   "music.chipMany": "Playing in {n} places",
   "music.pauseIn": "Pause in {rooms}",
   "music.goodnight": "Also pause the music and turn off the TVs",
-  "card.view.music": "Music on the floor plan"
+  "card.view.music": "Music on the floor plan",
+  "ambient.now": "Now",
+  "ambient.today": "Today",
+  "ambient.tomorrow": "Tomorrow",
+  "ambient.outdoor": "{temp} outside",
+  "setup.ambient": "The house as screensaver",
+  "setup.ambientOn": "Show the house full screen with a clock when nobody touches the screen",
+  "setup.ambientHelp": "Kiosk mode only. A big clock, the outdoor temperature, the next event in a calendar, warnings and what is playing. A touch goes back to the dashboard; at night the dimmed screen takes over.",
+  "setup.ambientAfter": "Starts after",
+  "setup.ambientSame": "The idle time above",
+  "setup.ambientCalendar": "Calendar"
 }

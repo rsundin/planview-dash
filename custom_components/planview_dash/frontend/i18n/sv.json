@@ -720,5 +720,15 @@
   "music.chipMany": "Spelar på {n} ställen",
   "music.pauseIn": "Pausa i {rooms}",
   "music.goodnight": "Pausa också musiken och stäng av tv:arna",
-  "card.view.music": "Musik på planritningen"
+  "card.view.music": "Musik på planritningen",
+  "ambient.now": "Nu",
+  "ambient.today": "I dag",
+  "ambient.tomorrow": "I morgon",
+  "ambient.outdoor": "{temp} ute",
+  "setup.ambient": "Huset som skärmsläckare",
+  "setup.ambientOn": "Visa huset i helskärm med en klocka när ingen rör skärmen",
+  "setup.ambientHelp": "Bara i kioskläge. En stor klocka, utetemperaturen, nästa händelse i en kalender, varningar och vad som spelas. En beröring går tillbaka till panelen; på natten tar den dimmade skärmen över.",
+  "setup.ambientAfter": "Börjar efter",
+  "setup.ambientSame": "Vilotiden ovan",
+  "setup.ambientCalendar": "Kalender"
 }

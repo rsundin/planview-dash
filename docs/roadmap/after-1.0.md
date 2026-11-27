@@ -43,21 +43,21 @@ Sizes as in plan.md (S under a day, M one to three days, L more). The plan's pri
 
 ### 1.1: Music in the room (new milestone)
 
-#### MU1: Speakers and screens in their rooms. Size: M
+#### MU1: Speakers and screens in their rooms. Status: done (v1.1.0-beta.1). Size: M
 - **What:**
   - `media_player` entities found through areas, like lamps today, and optionally placed on the plan or the picture. A speaker or TV icon where it is placed, or one per room in the room's corner when not placed.
   - Placement mode lists them in their own group and never warns about an unplaced one; a missing entity only warns when it is placed (the owner's rule about minor entities).
   - While playing: a soft pulse in the room, tinted from the album art (averaged on a small canvas, static in light mode). A TV that is on glows like a lamp.
 - **Done when:** browser tests with mock players cover found by area, placed, playing pulse, light mode static, and placement mode silent about unplaced players.
 
-#### MU2: Now playing in the room panel. Size: M. Depends: MU1
+#### MU2: Now playing in the room panel. Status: done (v1.1.0-beta.1). Size: M. Depends: MU1
 - **What:**
   - A "Now playing" row in the room panel: artwork, title and artist, play/pause, previous/next, volume, mute. Controls follow `supported_features`; nothing is drawn that the player cannot do.
   - Source and favourites: `select_source` for players with sources; with Music Assistant, its favourites and radio (through `browse_media`), limited to a short list.
   - Several players in one room: one row each, the playing one first.
 - **Done when:** tests cover a player with all features, one with only play/pause, a failed call (shown and announced as today), and artwork missing.
 
-#### MU3: The music view when the roof is lifted. Size: L. Depends: MU2
+#### MU3: The music view when the roof is lifted. Status: done (v1.1.0-beta.1). Size: L. Depends: MU2
 - **Why:** The owner's wish, and something no card does [P11][P12].
 - **What:**
   - A **Music** toggle on the floor plan, beside the coming energy view (H5). Rooms with a speaker show a volume ring and the playing title; silent rooms are dimmed.
@@ -67,7 +67,7 @@ Sizes as in plan.md (S under a day, M one to three days, L more). The plan's pri
   - Works the same on the apartment's plan.
 - **Done when:** tests with mock players cover join, unjoin, move with and without Music Assistant, group volume, a player that cannot group (no join offered), and keyboard use (A1 rules).
 
-#### MU4: The whole house playing. Size: S. Depends: MU2
+#### MU4: The whole house playing. Status: done (v1.1.0-beta.1). Size: S. Depends: MU2
 - **What:** A header chip when something plays anywhere ("Kitchen + living room: title"), tap to see all rooms and pause all. Goodnight (L2) gets an option to pause music and turn TVs off. In the card for other dashboards, `view: music` shows the music view.
 - **Done when:** tests cover the chip, pause all, and goodnight with and without the option.
 
@@ -97,6 +97,8 @@ The owner's top three get the next milestone.
 Unchanged from plan.md: W2 screen profiles and guest mode, W1 the house as screensaver (with what is playing), W3 family strip, W5 alarm panel; F1 summer house mode, F2 warm up before arrival, F3 both homes. Exploratory W4 and W6 stay exploratory.
 
 **Order decided by the owner (27 November 2026): take turns.** MU1–MU2 (now playing in the room) first, since they are small and bring music quickly. Then W2 and F1–F2 (the summer house is most useful in winter). Then MU3–MU4, the music view on top of MU2. Then W1, and 1.2 onward as above. plan.md's **Next up** list follows this order.
+
+**Built (27 November 2026):** MU1–MU4, W2, F1, F2 and W1 are in 1.1.0-beta.1, on a branch of its own while main holds the 1.0 freeze. W1's photo-frame mode is left for later.
 
 ### Moved to "Later"
 

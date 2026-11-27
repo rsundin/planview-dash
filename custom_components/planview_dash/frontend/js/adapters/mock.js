@@ -211,6 +211,14 @@ export function createMockAdapter(site) {
     if (site.weather) {
       list.push(S(site.weather, 'cloudy', { temperature: 6.5, wind_speed: 4, wind_gust_speed: 9, humidity: 86, temperature_unit: '°C', wind_speed_unit: 'm/s' }));
     }
+    // The screensaver's calendar (ui/ambient.js): an event in three hours.
+    const cal = site.wall_screen?.ambient?.calendar;
+    if (cal) {
+      const pad = (n) => String(n).padStart(2, '0');
+      const fmt = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
+      const start = new Date(); start.setHours(start.getHours() + 3, 0, 0, 0);
+      list.push(S(cal, 'off', { friendly_name: 'Family', message: 'Football practice', start_time: fmt(start), end_time: fmt(new Date(start.getTime() + 5400000)), all_day: false, location: '' }));
+    }
     // Cameras placed on the plans and the overview, and their motion sensors. A camera in
     // mock.entities gets the test picture too.
     const cams = [...site.floorplans.flatMap((p) => p.cameras ?? []), ...(site.overview?.cameras ?? [])];

@@ -27,8 +27,8 @@ export function createPlayingChip({ site, store, adapter, signal }) {
     el('span', { class: 'playing-dot', 'aria-hidden': 'true' }), label);
   const list = el('ul', { class: 'playing-list' });
   const pauseAll = el('button', { class: 'chip chip-danger', type: 'button', 'data-action': 'pause-all' }, t('music.pauseAll'));
-  const menu = el('div', { class: 'lights-menu playing-menu', role: 'menu', hidden: true }, list, pauseAll);
-  const wrap = el('div', { class: 'lights-wrap playing-wrap' }, btn, menu);
+  const menu = el('div', { class: 'playing-menu', role: 'menu', hidden: true }, list, pauseAll);
+  const wrap = el('div', { class: 'playing-wrap' }, btn, menu);
   const pause = (ids) => {
     const players = ids.filter((id) => can(store.get(id), F.PAUSE));
     if (players.length) adapter.call('media_player', 'media_pause', { entity_id: players });

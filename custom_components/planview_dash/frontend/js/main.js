@@ -528,8 +528,20 @@ export async function start(opts) {
     showStart();
     zoom.reset();
   };
+  // The house as screensaver (ui/ambient.js): the overview full screen, filling it.
+  const ambientView = (on) => {
+    if (on) {
+      settings.el.hidden = true;
+      report.close();
+      panel.close();
+      zoom.reset();
+      if (overview) { showOverview(); overview.setFit('slice'); } else showStart();
+    } else applyFit();
+  };
   wall = editing || embed ? null : createWall({ site, store, adapter, goHome: home, screen,
-    restart: opts.reload ?? (() => location.reload()), kiosk: () => document.body.classList.contains('is-kiosk'), enterKiosk: () => setKiosk(true, true), signal: run.signal });
+    restart: opts.reload ?? (() => location.reload()), kiosk: () => document.body.classList.contains('is-kiosk'), enterKiosk: () => setKiosk(true, true), signal: run.signal,
+    warnings: () => warnings(site, store, nameOf), onAmbient: ambientView });
+  run.wall = wall; // read by the browser tests
   // Test data: ?ring rings the first doorbell a moment after start.
   const bell = [].concat(site.wall_screen?.doorbell ?? [])[0];
   if (wall && adapter.kind === 'mock' && params.has('ring') && bell?.entity) {

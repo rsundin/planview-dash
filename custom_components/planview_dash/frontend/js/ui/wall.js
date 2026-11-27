@@ -4,12 +4,15 @@
 //   "wall_screen": {
 //     "doorbell": { "entity": "binary_sensor.doorbell", "camera": "camera.front_door", "seconds": 60 },
 //     "idle": { "back_after": 120, "dim_from": "22:00", "dim_to": "06:30", "dim": 0.85, "wake": ["binary_sensor.hall_motion"] },
+//     "ambient": { "after": 300, "calendar": "calendar.family" },
 //     "lite": false
 //   }
 //
 // Doorbell: when the entity rings, the camera opens in a window that closes by itself.
 // Idle (kiosk mode only): back to the start view after a while without touch, and between
 // dim_from and dim_to a dimmed screen that a touch or a motion sensor wakes.
+// Ambient (kiosk mode only, ui/ambient.js): the house as screensaver after a while without
+// touch, outside the dim hours.
 // Light mode: no blur, blending or animation, for older tablets. Per device On, Off or
 // Auto on the wall screen sheet (the Kiosk mode button), or with ?lite and ?lite=0 on the
 // address. Auto follows "lite": true for every screen, and otherwise turns it on for
@@ -20,6 +23,7 @@ import { screensOf, chooseScreen } from '../screens.js';
 import { t } from '../i18n.js';
 import { nameOf } from '../entities.js';
 import { openCamera, closeCamera, cameraOpen } from './camera.js';
+import { createAmbient, ambientCfg } from './ambient.js';
 
 const LITE_KEY = 'pvd:lite';
 
@@ -86,13 +90,16 @@ export function inWindow(now, from, to) {
  * @param {AbortSignal} o.signal
  * @param {object} [o.screen]  this device's screen profile (screens.js)
  * @param {Function} [o.restart] restarts the dashboard (after choosing another profile)
+ * @param {Function} [o.warnings] () => the warnings shown, for the screensaver
+ * @param {Function} [o.onAmbient] (on) => the dashboard shows the house full screen, or stops
  */
-export function createWall({ site, store, adapter, goHome, kiosk, enterKiosk, signal, screen = null, restart = () => location.reload() }) {
+export function createWall({ site, store, adapter, goHome, kiosk, enterKiosk, signal, screen = null, restart = () => location.reload(),
+  warnings = () => [], onAmbient = () => {} }) {
   const cfg = site.wall_screen ?? {};
   const idle = cfg.idle ?? {};
   const bells = [].concat(cfg.doorbell ?? []).filter((b) => b?.entity && b?.camera);
   const timers = [];
-  signal.addEventListener('abort', () => { timers.forEach(clearInterval); closeCamera(); dimmer.remove(); sheet.remove(); dim(false); });
+  signal.addEventListener('abort', () => { timers.forEach(clearInterval); closeCamera(); dimmer.remove(); sheet.remove(); dim(false); ambient(false); ambientBox.el.remove(); });
 
   // ---------- idle
   let last = Date.now();
@@ -114,7 +121,19 @@ export function createWall({ site, store, adapter, goHome, kiosk, enterKiosk, si
     document.body.classList.toggle('is-dimmed', on);
     syncPause();
   }
-  const touched = () => { last = Date.now(); away = false; if (!dimmer.hidden) wake(); };
+  // ---------- the house as screensaver (ui/ambient.js)
+  const ambientOn = ambientCfg(site);
+  const ambientAfter = ambientOn ? Math.max(5, Number(ambientOn.after ?? (backAfter > 0 ? backAfter / 1000 : 120))) * 1000 : 0;
+  const ambientBox = createAmbient({ site, store, warnings });
+  document.body.append(ambientBox.el);
+  // A touch only wakes the dashboard; it does not reach what is under the picture.
+  ambientBox.el.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); });
+  ambientBox.el.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
+  function ambient(on) {
+    if (ambientBox.shown === on) return;
+    if (on) { onAmbient(true); ambientBox.show(); } else { ambientBox.hide(); onAmbient(false); }
+  }
+  const touched = () => { last = Date.now(); away = false; if (!dimmer.hidden) wake(); ambient(false); };
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeCamera(); closeSheet(); } }, { signal });
   for (const type of ['pointerdown', 'keydown', 'wheel']) document.addEventListener(type, touched, { capture: true, passive: true, signal });
 
@@ -124,14 +143,16 @@ export function createWall({ site, store, adapter, goHome, kiosk, enterKiosk, si
   }
   const night = () => inWindow(new Date(), idle.dim_from, idle.dim_to);
   function check() {
-    if (!kiosk() || cameraOpen()) { dim(false); return; }
+    if (!kiosk() || cameraOpen()) { dim(false); ambient(false); return; }
     const quiet = Date.now() - last;
     if (backAfter > 0 && quiet >= backAfter && !away) { away = true; goHome(); }
     const dimAfter = backAfter > 0 ? backAfter : 120000;
     if (night() && quiet >= dimAfter) {
       dimClock.textContent = new Date().toLocaleTimeString(site.locale, { hour: '2-digit', minute: '2-digit' });
+      ambient(false); // night hands over to the dim
       dim(true);
     } else if (!night()) dim(false);
+    if (ambientAfter && !night() && quiet >= ambientAfter) ambient(true);
   }
   timers.push(setInterval(check, 5000));
   // A motion sensor wakes the dimmed screen.
@@ -159,6 +180,7 @@ export function createWall({ site, store, adapter, goHome, kiosk, enterKiosk, si
 
   function ring(b) {
     wake();
+    ambient(false);
     openCamera({
       site, store, adapter, ids: [b.camera], seconds: Math.max(5, Number(b.seconds ?? 60)),
       eyebrow: t('wall.ringing'), title: (b.name ?? nameOf(b.camera, { store, site }, '')) || t('wall.door'),
@@ -221,6 +243,8 @@ export function createWall({ site, store, adapter, goHome, kiosk, enterKiosk, si
   return {
     ring: (i = 0) => bells[i] && ring(bells[i]),
     wake,
+    check,
+    ambient: (on = true) => ambient(on),
     open() { renderSeg(); renderPick(); pick.hidden = !!screen?.guest; unlock.hidden = !screen?.guest; sheet.hidden = false; },
   };
 }

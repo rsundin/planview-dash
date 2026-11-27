@@ -130,11 +130,19 @@ button { font: inherit; color: inherit; }
 .playing-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .playing-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; animation: playing-dot 1.6s ease-in-out infinite; }
 @keyframes playing-dot { 50% { opacity: 0.35; } }
-.playing-menu { min-width: 240px; }
+.playing-wrap { position: relative; }
+.playing-menu {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 30; display: flex; flex-direction: column; gap: 8px;
+  padding: 10px; background: var(--surface-solid); border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); min-width: 240px;
+}
+.playing-menu.to-left { left: auto; right: 0; }
+.playing-menu[hidden] { display: none; }
+.playing-menu > .chip { width: 100%; text-align: center; }
 .playing-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .playing-list li { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
 .playing-list li span { overflow-wrap: anywhere; }
-.lights-menu .playing-list .chip { width: auto; flex: none; }
+.playing-list .chip { flex: none; }
 
 .icon-btn {
   width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line);
@@ -821,6 +829,28 @@ details.alert .alert-action { margin: 4px 0 2px; font-size: 13px; }
 /* ---------- idle mode: a dimmed screen at night, woken by a touch or a motion sensor */
 .idle-dim { position: fixed; inset: 0; z-index: 75; background: rgba(0, 0, 0, var(--dim, 0.85)); display: grid; place-items: center; cursor: none; touch-action: none; }
 .idle-clock { font: 500 clamp(48px, 12vw, 160px) var(--f-mono); font-variant-numeric: tabular-nums; color: var(--ink); opacity: 0.22; user-select: none; -webkit-user-select: none; }
+
+/* ---------- the house as screensaver (ui/ambient.js): the picture full screen, a clock on it */
+.is-ambient .stage-wrap { position: fixed; inset: 0; z-index: 72; }
+.is-ambient .stage { height: 100vh; height: 100dvh; border: 0; border-radius: 0; aspect-ratio: auto; }
+.is-ambient .stage-wrap > :not(.stage), .is-ambient .zoom-reset { display: none !important; }
+.ambient {
+  position: fixed; inset: 0; z-index: 73; cursor: none; touch-action: none; user-select: none; -webkit-user-select: none;
+  display: flex; align-items: flex-end; padding: clamp(16px, 4vw, 56px);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0) 55%);
+}
+.ambient[hidden] { display: none; }
+/* A slow drift, so nothing stays on the same pixels all day; light mode keeps it still. */
+.ambient-box { display: grid; gap: 6px; max-width: min(720px, 100%); color: #f4f1ea; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6); animation: ambient-drift 600s ease-in-out infinite alternate; }
+@keyframes ambient-drift { to { transform: translate(3vw, -2vh); } }
+.ambient-box p { margin: 0; }
+.ambient-clock { font: 500 clamp(56px, 12vw, 168px) / 1 var(--f-display); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.ambient-date { font: 500 clamp(18px, 2.4vw, 30px) var(--f-display); text-transform: capitalize; opacity: 0.9; }
+.ambient-temp, .ambient-event, .ambient-playing { font: 400 clamp(16px, 2vw, 24px) var(--f-display); }
+.ambient-warnings { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.ambient-warnings li { font: 500 clamp(15px, 1.8vw, 21px) var(--f-display); padding-left: 14px; border-left: 3px solid var(--glow); }
+.ambient-warnings li[data-level='alert'] { border-color: var(--danger); }
+.ambient [hidden] { display: none; }
 
 /* ---------- hidden page or night dim: animations rest (syncPause in util.js) */
 .is-paused *, .is-paused *::before, .is-paused *::after { animation-play-state: paused !important; }

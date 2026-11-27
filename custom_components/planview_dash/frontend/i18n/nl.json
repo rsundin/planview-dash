@@ -721,5 +721,15 @@
   "music.chipMany": "Speelt op {n} plekken",
   "music.pauseIn": "Pauzeren in {rooms}",
   "music.goodnight": "Ook de muziek pauzeren en de tv's uitzetten",
-  "card.view.music": "Muziek op de plattegrond"
+  "card.view.music": "Muziek op de plattegrond",
+  "ambient.now": "Nu",
+  "ambient.today": "Vandaag",
+  "ambient.tomorrow": "Morgen",
+  "ambient.outdoor": "{temp} buiten",
+  "setup.ambient": "Het huis als schermbeveiliging",
+  "setup.ambientOn": "Het huis schermvullend met een klok tonen als niemand het scherm aanraakt",
+  "setup.ambientHelp": "Alleen in kioskmodus. Een grote klok, de buitentemperatuur, de volgende afspraak in een agenda, waarschuwingen en wat er speelt. Een aanraking gaat terug naar het dashboard; 's nachts neemt het gedimde scherm het over.",
+  "setup.ambientAfter": "Start na",
+  "setup.ambientSame": "De rusttijd hierboven",
+  "setup.ambientCalendar": "Agenda"
 }
