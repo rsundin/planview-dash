@@ -29,7 +29,7 @@ Take these in order. L1, L2, H4 and L3 come before S5 because they are what the 
 1. Take the first task whose status is `todo` and whose `Depends` are `done`, unless the owner names another.
 2. Branch `feat/<task-id>-<short-name>` (for example `feat/q1-tests`), one task per branch and pull request.
 3. Read `CLAUDE.md` first; its rules apply (English in code and docs, UI strings in `frontend/i18n/` in Swedish and English, no real-home data, no build step, no outside calls).
-4. Meet every point under **Done when**. Add or extend tests (see Q1), update `docs/configuration.md` or `docs/setup.md` when behaviour or config changes, and add a `CHANGELOG.md` entry with a version bump in `manifest.json`: the next patch version for each task (0.8.10, 0.8.11 …); the owner decides when a release is big enough for 0.9.0, and 1.0.0 comes when everything runs stable.
+4. Meet every point under **Done when**. Add or extend tests (see Q1), update `docs/configuration.md` or `docs/setup.md` when behaviour or config changes, and add a `CHANGELOG.md` entry with a version bump in `manifest.json`: from 1.0 the version follows SemVer: a fix is the next patch (1.0.1), a release with new features the next minor (1.1.0), and a breaking change waits for 2.0.0 (see [v1.md](v1.md#what-10-promises)).
 5. In this file, set the task's status to `done (vX.Y.Z)`; in `ROADMAP.md`, move finished milestones to **Done**.
 6. Keep the product principles below. If a task seems to need breaking one, stop and ask the owner.
 
@@ -276,10 +276,11 @@ Features for 1.0 are in place; what is left is the promise that a dashboard set 
 - **Done when:** 0.9.0 is published and `ROADMAP.md` says the beta is open.
 - **Done (0.9.0):** no code changed since 0.8.42; the release is the version, a changelog section that says "beta for 1.0" and sums up V1–V5, and the beta notes in `ROADMAP.md` and the README. The `bug` label already existed and the bug report form sets it; the form now says the beta is on and asks what the problem affects (lights, temperature, energy flow …), so V7's "no open `bug` affecting lights, temperature or energy flow" can be read off the issues. The triage routine is in [v1.md](v1.md#the-beta-in-practice). 0.9.0 is published as a normal release, not a pre-release, since the Marketplace hides pre-releases from almost everyone.
 
-### V7: The 1.0 release checklist. Status: todo. Size: S. Depends: V6
+### V7: The 1.0 release checklist. Status: done (v1.0.0). Size: S. Depends: V6
 - **What (owner, on real hardware):** a week on the wall tablet (idle, night dimming, motion wake, light mode, **Aa**); an iPad and a phone; the card in a sections view; a clean Marketplace install following only `docs/setup.md`; an upgrade with a real `site.json`; no open `bug` affecting lights, temperature or energy flow; two weeks since the last 0.9.x fix.
 - **A fresh start for the public history (owner's wish, 21 November 2026):** 1.0.0 is presented as the first version. `CHANGELOG.md` starts over with one section, "1.0.0: the first stable release", that walks through every feature with links to the docs, and the 0.x sections are removed; `ROADMAP.md` drops its "Done in 0.8.x" notes; the docs (V4) describe what is there without version history. One short line on upgrading from SmartHomeDash or 0.x stays, since that migration lives until 2.0. Git history, closed pull requests and the 0.x tags stay as they are: Marketplace users already run 0.8.x, and rewritten history would break their updates.
 - **Done when:** every point is ticked, and 1.0.0 is published with the same code as the last 0.9.x.
+- **Done (1.0.0):** the owner's points were ticked in the release checklist, issue #59. The code is the last 0.9.x with the version changed. `CHANGELOG.md` starts over with one 1.0.0 section that walks through every feature with links to the docs, plus one paragraph on upgrading from SmartHomeDash or 0.x; `ROADMAP.md` replaced its done milestones and the "Done in 0.8.x" notes with one 1.0 section; the beta notes left the README and the bug report form.
 
 ---
 

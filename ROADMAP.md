@@ -2,49 +2,9 @@
 
 What is planned next, roughly in order. Plans change; ideas and votes are welcome in [Discussions](https://github.com/rsundin/planview-dash/discussions), and problems in [issues](https://github.com/rsundin/planview-dash/issues) (the dashboard's **?** button fills one in).
 
-## 0.9: Foundation
+## 1.0: Stable
 
-- **Automated tests** in the repo and CI, covering the backend and the dashboard in a browser at five screen sizes. Done in 0.8.6.
-- **Performance budget** measured on a large test home with a slowed-down CPU, so old wall tablets stay smooth. Done in 0.8.7.
-- **Names as Home Assistant shows them**, following the 2026.11 naming change. Done in 0.8.8.
-- **Electricity prices at 15 minutes**, as Nord Pool publishes them since October 2025, in the chart and the cheapest hours. Done in 0.8.10.
-- **Clear messages** when site.json refers to devices that no longer exist, and a check of site.json before it is saved. Done in 0.8.11.
-- **Install docs for the Marketplace**, which replaced HACS in Home Assistant 2026.11. Done in 0.8.17.
-- **A steadier pinch zoom** after a drag (done in 0.8.18), and **tests against a real Home Assistant** in CI (done in 0.8.19).
-- **A tidier codebase** for what comes next: the setup guide in one file per step, the texts in one file per language. Done in 0.8.20.
-
-## 1.0: Nearly zero setup
-
-- **Quick start from Home Assistant**: a floor plan per floor with a tile per area, working before you draw anything. Done in 0.8.12.
-- **Report a problem and get help**: a *Report a problem* button that fills in a GitHub issue without details about your home, Home Assistant diagnostics, and GitHub Discussions for questions and ideas. Done in 0.8.14.
-- **Editor comforts**: undo and redo, move and add corners, snap to other rooms, move a whole room, nudge with the arrow keys. Done in 0.8.15.
-- **Export, import and restore points** for a whole dashboard. Done in 0.8.16.
-- **A card for any dashboard** (`custom:planview-dash-card`): the overview, a floor plan or a room in any Home Assistant dashboard. Done in 0.8.21.
-- **More languages**: German, Norwegian, Danish, Finnish and Dutch, machine-assisted with corrections welcome, and a guide for translators. Done in 0.8.28.
-- **A listing in Home Assistant's Marketplace**, so PlanView Dash can be found without a link. Ready in 0.8.32, under the new name PlanView Dash in 0.8.33; the request to the catalog follows the release.
-- **Accessibility and large text**: text size per device, keyboard use, screen reader names. Done in 0.8.26.
-- **Launch**: a short recording in the README, ready-made posts for the Home Assistant forum and Reddit, and a guide to sharing your dashboard without private details. Done in 0.8.34; the posts follow the release.
-
-## 1.0 release: stable
-
-Every feature planned for 1.0 is in. Before 1.0.0, the work is making it last: a versioned `site.json` that every later 1.x opens unchanged, final names for actions and the card, lights, temperature and energy flow that cope with devices dropping out and different inverters, clear messages when Home Assistant refuses a command, and troubleshooting docs. That ships as **0.9.0, a beta**; 0.9.x then takes fixes only, and 1.0.0 follows once a release has run two weeks without one. New features wait until after 1.0. Details: [docs/roadmap/v1.md](docs/roadmap/v1.md).
-
-**The beta is open (0.9.0).** Try it on your home and report what does not work: the dashboard's **?** button fills in an [issue](https://github.com/rsundin/planview-dash/issues) without details about your home, and every report is answered within a few days. Problems with lights, temperature or energy flow come first.
-
-- **A versioned `site.json`**: every file says its format, older files are upgraded by themselves, and a file from a newer version is never saved over. Done in 0.8.36.
-- **Final public names**: the self-updater is gone (0.8.35), and every name you can type into Home Assistant (the YAML keys, the goodnight action and sensor, the card's options, the addresses) is listed as stable through 1.x. Done in 0.8.37.
-- **Lights, temperature and energy on any home**: a device that drops out shows as not responding instead of off, 0° or 0 kW; a command Home Assistant refuses says so on the screen; power in any of Home Assistant's units; both sign conventions for grid, battery and charger; homes in Fahrenheit. Done in 0.8.38.
-- **Docs for everyone**: a troubleshooting page, how upgrading works, and the promise for 1.x in the README. Done in 0.8.39.
-- **Cleanups before the freeze**: tested on Home Assistant 2026.11 with 2025.6 as the oldest supported, and a security pass over everything that writes. Done in 0.8.42.
-- **The 0.9.0 beta**: everything above in one release, bug fixes only from here. Open since 0.9.0.
-- **1.0.0**: the last 0.9.x, once it has run two weeks without a fix and has been checked on a wall tablet, an iPad, a phone and a clean install.
-
-## Whole-house control
-
-- **All lights on and all off** from the lights card and the header, with lights you can leave out. Done in 0.8.22.
-- **Goodnight**: one tap, the lights stay on a few minutes while you go to bed, then everything turns off. Runs in Home Assistant, so it works even if the screen goes off. Done in 0.8.23.
-- **Cameras on the picture** (moved up from 1.1): place them on the floor plan or the overview, tap for the live view. Done in 0.8.25.
-- **LED strips drawn as what they are**: a glowing line or surface on the plan and the picture, not a round spot. Done in 0.8.27.
+Your home as a picture, set up in the UI, with lights, heating, energy flow, electricity prices, wall screens, a card for other dashboards and seven languages. What 1.0 contains is in the [changelog](CHANGELOG.md), and what stays the same through 1.x is in the [README](README.md#what-stays-the-same). From here, 1.0.x takes fixes; new features come in 1.1 and later.
 
 ## 1.1: More of the home on the picture
 
@@ -75,14 +35,3 @@ Every feature planned for 1.0 is in. Before 1.0.0, the work is making it last: a
 - A timeline to scrub through today on the picture, heating schedules per room, sunlight through windows, a daily summary written by AI (off by default), camera events with AI summaries, a community section for Home Assistant's dashboards.
 
 The working plan with tasks and acceptance criteria is [docs/roadmap/plan.md](docs/roadmap/plan.md), where the project stands is [docs/roadmap/status-2026-11.md](docs/roadmap/status-2026-11.md), and the research behind it is [docs/roadmap/research-2026-11.md](docs/roadmap/research-2026-11.md).
-
-## Done
-
-- 0.8.6 to 0.8.16: tests, performance budget, Home Assistant naming, quarter-hour prices, config check, quick start, report a problem, editor comforts, backup and restore points
-- 0.8.0: wall screens: doorbell camera, idle mode with night dimming and motion wake, light mode for older tablets
-- 0.7.0: energy flow, dusk and weather on the picture, blinds and curtains, cheapest electricity hours; rooms pick up their area's entities by themselves
-- 0.6.0: doors, windows, locks, presence and alarms per room; warnings; floors from Home Assistant
-- 0.5.2: online demo; lamps glow in their own colour and brightness
-- 0.5.1: pinch zoom on phones
-- 0.5.0: rooms linked to Home Assistant areas; an overview picture without a drone
-- 0.4.0: first public release
