@@ -71,6 +71,8 @@ function startGoodnight(site, adapter, onError) {
   const g = site.goodnight ?? {};
   const data = { site: site.id, entity_id: allLights(site), minutes: g.minutes ?? 5 };
   if (g.then) data.then = g.then;
+  // Speakers pause and TVs turn off at the end too, when the dashboard says so (MU4).
+  if (g.media && site.index.media?.length) data.media_player = site.index.media;
   return adapter.call('planview_dash', 'goodnight', data, { onError });
 }
 

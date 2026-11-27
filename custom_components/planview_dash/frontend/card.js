@@ -3,7 +3,7 @@
 //
 //   type: custom:planview-dash-card
 //   site: home            # the dashboard's folder, as in its sidebar panel
-//   view: overview        # overview | plan:<floor plan id> | room:<room id>
+//   view: overview        # overview | plan:<floor plan id> | room:<room id> | music
 //   height: 400           # px; leave out in a sections view, where the grid sets it
 //
 // The dashboard itself runs in a frame (card.html, card-frame.js): the same code as the
@@ -16,7 +16,7 @@ const API = '/api/planview_dash/sites';
 const TYPE = 'planview-dash-card';
 const PANEL_ELEMENT = 'planview-dash-panel';
 const SITE_ID = /^[a-z0-9_-]+$/i;
-const VIEW = /^(overview|(plan|room):[\w:.-]+)$/;
+const VIEW = /^(overview|music|(plan|room):[\w:.-]+)$/;
 const DEFAULT_HEIGHT = 400;
 const versioned = (file) => `${BASE}${file}${VERSION ? `?v=${encodeURIComponent(VERSION)}` : ''}`;
 
@@ -84,6 +84,7 @@ function viewOptions(config) {
   const plans = Array.isArray(config?.floorplans) ? config.floorplans.filter((p) => p && p.id) : [];
   if (config?.overview?.image) out.push(['overview', t('card.view.overview')]);
   for (const p of plans) out.push([`plan:${p.id}`, t('card.view.plan', { name: p.name ?? p.id })]);
+  if (plans.length) out.push(['music', t('card.view.music')]);
   for (const p of plans) {
     for (const r of Array.isArray(p.rooms) ? p.rooms : []) {
       if (r && r.id) out.push([`room:${r.id}`, t('card.view.room', { name: r.name ?? r.id, plan: p.name ?? p.id })]);
@@ -110,7 +111,7 @@ class PlanViewDashCard extends HTMLElement {
 
   setConfig(config) {
     if (config?.site != null && config.site !== '' && !SITE_ID.test(String(config.site))) throw new Error('site: letters, digits, _ and - only');
-    if (config?.view != null && !VIEW.test(String(config.view))) throw new Error('view: overview, plan:<id> or room:<id>');
+    if (config?.view != null && !VIEW.test(String(config.view))) throw new Error('view: overview, plan:<id>, room:<id> or music');
     const height = Number(config?.height);
     this._config = {
       site: config?.site ? String(config.site) : '',

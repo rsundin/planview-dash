@@ -40,6 +40,8 @@ MAX_MINUTES = 120
 # open to every logged-in user, like switching a lamp in the dashboard.
 _LIGHT = r"^(light|switch)\.[a-z0-9_]+$"
 _SCRIPT = r"^script\.[a-z0-9_]+$"
+# Speakers pause and TVs turn off at the end, when the dashboard sends them.
+_MEDIA = r"^media_player\.[a-z0-9_]+$"
 
 SCHEMA = vol.Schema(
     {
@@ -47,6 +49,7 @@ SCHEMA = vol.Schema(
         vol.Optional("entity_id", default=[]): vol.All(cv.ensure_list, vol.Length(max=500), [vol.Match(_LIGHT)]),
         vol.Optional("minutes", default=DEFAULT_MINUTES): vol.All(vol.Coerce(float), vol.Range(min=0, max=MAX_MINUTES)),
         vol.Optional("then"): vol.Match(_SCRIPT),
+        vol.Optional("media_player", default=[]): vol.All(cv.ensure_list, vol.Length(max=200), [vol.Match(_MEDIA)]),
         vol.Optional("cancel", default=False): cv.boolean,
     }
 )
@@ -60,6 +63,27 @@ def signal(site: str) -> str:
 def running(hass: HomeAssistant, site: str) -> tuple | None:
     """(ends_at, minutes) while a site's countdown runs, else None."""
     return hass.data.get(DOMAIN, {}).get("goodnight_running", {}).get(site)
+
+
+# MediaPlayerEntityFeature: PAUSE and TURN_OFF.
+_PAUSE = 1
+_TURN_OFF = 256
+
+
+def media_at_goodnight(hass: HomeAssistant, ids: list[str]) -> tuple[list[str], list[str]]:
+    """Which players to pause (speakers playing) and which to turn off (TVs that are on)."""
+    pause, off = [], []
+    for entity_id in ids:
+        state = hass.states.get(entity_id)
+        if state is None:
+            continue
+        features = int(state.attributes.get("supported_features") or 0)
+        if state.attributes.get("device_class") == "tv":
+            if features & _TURN_OFF and state.state not in ("off", "standby", "unavailable", "unknown"):
+                off.append(entity_id)
+        elif state.state == "playing" and features & _PAUSE:
+            pause.append(entity_id)
+    return pause, off
 
 
 @callback
@@ -92,6 +116,7 @@ def async_register(hass: HomeAssistant) -> None:
             return
         lights = list(dict.fromkeys(call.data["entity_id"]))
         then = call.data.get("then")
+        media = list(dict.fromkeys(call.data["media_player"]))
         minutes = call.data["minutes"]
         ends_at = dt_util.utcnow() + timedelta(minutes=minutes)
 
@@ -100,6 +125,11 @@ def async_register(hass: HomeAssistant) -> None:
             show(site)
             if lights:
                 await hass.services.async_call("homeassistant", "turn_off", {"entity_id": lights}, blocking=False, context=call.context)
+            pause, off = media_at_goodnight(hass, media)
+            if pause:
+                await hass.services.async_call("media_player", "media_pause", {"entity_id": pause}, blocking=False, context=call.context)
+            if off:
+                await hass.services.async_call("media_player", "turn_off", {"entity_id": off}, blocking=False, context=call.context)
             if then:
                 await hass.services.async_call("script", "turn_on", {"entity_id": then}, blocking=False, context=call.context)
             _LOGGER.debug("Goodnight for %s: turned off %d lights", site, len(lights))

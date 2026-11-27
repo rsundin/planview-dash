@@ -2,7 +2,7 @@
 // corner), a soft pulse over the room while it plays, tinted from the album art, and a
 // glow round a TV that is on. Light mode keeps the pulse still (style.css).
 
-import { sv, pts, bbox, press } from '../util.js';
+import { sv, pts, bbox, press, stripOf } from '../util.js';
 import { t } from '../i18n.js';
 import { nameOf, noReading } from '../entities.js';
 import { isPlaying, isTv, tvOn, artUrl, artColour, nowPlaying } from '../media.js';
@@ -10,12 +10,20 @@ import { isPlaying, isTv, tvOn, artUrl, artColour, nowPlaying } from '../media.j
 export const SPEAKER = 'M4 9h4l5-4v14l-5-4H4zM16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11';
 export const TV = 'M3 5h18v12H3zM8 21h8M12 17v4';
 
-// Where a player without a place of its own goes: a row in the room's top left corner.
+// Where a player without a place of its own goes: a row from the room's corner that is
+// farthest from its lamps and LED strips, so the icon never covers one.
 export function cornerSpot(room, i, unit) {
   const b = bbox([room.area]);
   const step = unit * 2.2;
+  const inset = unit * 1.6;
+  const marks = room.lights.flatMap((l) => [l.at, ...(stripOf(l)?.points ?? [])]).filter(Array.isArray);
+  const corners = [[1, 1], [-1, 1], [1, -1], [-1, -1]].map(([dx, dy]) => ({
+    dx, dy, x: dx > 0 ? b.x + inset : b.x + b.w - inset, y: dy > 0 ? b.y + inset : b.y + b.h - inset,
+  }));
+  const clear = (c) => (marks.length ? Math.min(...marks.map(([x, y]) => Math.hypot(x - c.x, y - c.y))) : Infinity);
+  const c = corners.reduce((best, x) => (clear(x) > clear(best) + 1e-6 ? x : best), corners[0]);
   const perRow = Math.max(1, Math.floor((b.w - unit * 2) / step));
-  return [b.x + unit * 1.6 + (i % perRow) * step, b.y + unit * 1.6 + Math.floor(i / perRow) * step];
+  return [c.x + c.dx * (i % perRow) * step, c.y + c.dy * Math.floor(i / perRow) * step];
 }
 
 /**

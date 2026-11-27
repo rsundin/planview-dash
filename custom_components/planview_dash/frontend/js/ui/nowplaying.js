@@ -25,7 +25,7 @@ const ICON = {
  * @param {object} o
  * @param {object} o.room
  * @param {Function} o.watch  (ids, fn) => registers a store watch that ends with the panel
- * @param {object[]} [o.extra] (player id) => elements to add under a row (the music view's buttons)
+ * @param {Function} [o.extra] (player id) => elements to add under a row (the music view's buttons)
  */
 export function nowPlayingSection({ room, site, store, adapter, watch, extra = null }) {
   const list = el('ul', { class: 'np-list' });
@@ -59,12 +59,12 @@ export function nowPlayingSection({ room, site, store, adapter, watch, extra = n
     favBtn.addEventListener('click', () => toggleFavourites(id, favBtn, favs));
     const controls = el('div', { class: 'np-controls' }, power, prev, play, next);
     const volRow = el('div', { class: 'np-vol' }, mute, volume);
+    const extraBox = el('div', { class: 'np-extra' });
     const li = el('li', { class: 'np-row', 'data-entity': id },
       el('div', { class: 'np-top' }, art, artNone,
         el('div', { class: 'np-text' }, name, title, by)),
       controls, volRow,
-      el('div', { class: 'np-more' }, source, favBtn), favs,
-      ...(extra ? [].concat(extra(id) ?? []) : []));
+      el('div', { class: 'np-more' }, source, favBtn), favs, extraBox);
     let lastArt = null;
     const draw = () => {
       const s = store.get(id);
@@ -122,8 +122,10 @@ export function nowPlayingSection({ room, site, store, adapter, watch, extra = n
       }
       favBtn.hidden = dead || !adapter.browse || !(can(s, F.BROWSE) && can(s, F.PLAY_MEDIA));
       source.parentNode.hidden = source.hidden && favBtn.hidden;
+      // The music view's buttons (views/music.js): play here too, move here, leave.
+      if (extra) extraBox.replaceChildren(...[].concat(extra(id) ?? []).filter(Boolean));
     };
-    watch([id], draw);
+    watch(extra ? [id, ...(site.index.media ?? [])] : [id], draw);
     return li;
   }
 

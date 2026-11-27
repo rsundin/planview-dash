@@ -78,7 +78,7 @@ async function build() {
     states: {},
     // Registries as recent Home Assistant versions hand them over: the bedroom lamp is in an area.
     areas: { bedroom_area: { area_id: 'bedroom_area', name: 'Bedroom' } },
-    entities: { 'light.bedroom': { entity_id: 'light.bedroom', area_id: 'bedroom_area' } },
+    entities: { 'light.bedroom': { entity_id: 'light.bedroom', area_id: 'bedroom_area' }, 'media_player.bedroom_speaker': { entity_id: 'media_player.bedroom_speaker', area_id: 'bedroom_area' } },
     devices: {},
     floors: {},
     panels: {

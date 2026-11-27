@@ -20,7 +20,7 @@ export const ICONS = {
 
 const FLAME = 'M12 2c1 3.5-1.5 5-1.5 7.5A2.5 2.5 0 0 0 13 12c0-1 .5-2 1.5-2.5C16 12 18 13.5 18 16a6 6 0 0 1-12 0c0-4 3-6 6-14z';
 
-export function createFloorplan({ site, plan, store, adapter, onRoom }) {
+export function createFloorplan({ site, plan, store, adapter, onRoom, music = null }) {
   const rooms = plan.rooms ?? [];
   const outline = plan.outline ?? rooms.flatMap((r) => r.area);
   const bb = bbox([outline, ...rooms.map((r) => r.area)]);
@@ -209,11 +209,16 @@ export function createFloorplan({ site, plan, store, adapter, onRoom }) {
   defs,
   floor, fills, speakers.pulses, glows, walls, labels, lamps, speakers.marks, camsG);
 
+  // The music view (views/music.js): over everything, shown while Music is on.
+  const musicLayer = music?.layer({ rooms, unit, onRoom });
+  if (musicLayer) { svg.append(musicLayer.el); musicLayer.attach(svg); }
+
   const root = el('div', { class: `view fp${picture ? ' has-picture' : ''}${tiles ? ' is-tiles' : ''}`, 'data-plan': plan.id }, svg);
 
   return {
     el: root,
     svg,
+    hasMusic: !!musicLayer?.hasMusic,
     select(roomId) {
       fills.querySelectorAll('.fp-room').forEach((n, i) => n.classList.toggle('is-selected', rooms[i].id === roomId));
     },

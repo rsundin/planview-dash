@@ -125,6 +125,17 @@ button { font: inherit; color: inherit; }
 .lights-menu[hidden] { display: none; }
 .lights-menu .chip { width: 100%; text-align: center; }
 
+/* What plays in the house (ui/playing.js) */
+.chip-playing { display: inline-flex; align-items: center; gap: 8px; max-width: 26ch; }
+.playing-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.playing-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; animation: playing-dot 1.6s ease-in-out infinite; }
+@keyframes playing-dot { 50% { opacity: 0.35; } }
+.playing-menu { min-width: 240px; }
+.playing-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.playing-list li { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.playing-list li span { overflow-wrap: anywhere; }
+.lights-menu .playing-list .chip { width: auto; flex: none; }
+
 .icon-btn {
   width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line);
   background: transparent; cursor: pointer; font-size: 20px; line-height: 1;
@@ -164,6 +175,37 @@ button { font: inherit; color: inherit; }
 .zoom-reset { position: absolute; right: 12px; top: 12px; z-index: 6; }
 .stage-hint { margin: 8px 2px 0; font-size: 13px; color: var(--muted); }
 .back { position: absolute; left: 12px; top: 12px; z-index: 5; }
+/* The music view (views/music.js): the switch on the plan, and the bar under it. */
+.music-toggle { position: absolute; right: 12px; top: 12px; z-index: 5; }
+/* Zoomed in, the zoom reset takes that corner: the switch moves below it. */
+.stage-wrap:has(.zoom-reset:not([hidden])) .music-toggle { top: 56px; }
+.music-toggle.is-active { border-color: #c9a2ff; color: #e4d2ff; }
+.music-bar { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 5; display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); max-width: 520px; }
+.music-bar-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.music-group-name { margin: 0; overflow-wrap: anywhere; }
+.music-main-vol { flex: 1; min-width: 120px; }
+.music-members { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.music-members li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 8px; align-items: center; }
+.music-members .step { width: 32px; height: 32px; font-size: 18px; }
+.stage:not(.is-music) .fp-music { display: none; }
+.fp-music-dim { fill: var(--bg); opacity: 0.6; pointer-events: none; }
+.fp-music-room { fill: rgba(201, 162, 255, 0.06); stroke: transparent; cursor: pointer; }
+.fp-music-room.is-silent { fill: rgba(0, 0, 0, 0.35); }
+.fp-music-room.is-playing { fill: rgba(201, 162, 255, 0.14); }
+.fp-music-room.in-group { stroke: var(--group); }
+.fp-music-room:focus-visible { outline: none; stroke: var(--accent); }
+.fp-music-track { fill: rgba(4, 9, 7, 0.7); stroke: var(--line); pointer-events: none; }
+.fp-music-ring { fill: none; stroke: var(--muted); stroke-linecap: round; pointer-events: none; }
+.fp-music-ring.is-playing { stroke: #c9a2ff; }
+.fp-music-icon { fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.fp-music-title { fill: var(--ink); font-family: var(--f-display); font-weight: 600; pointer-events: none; paint-order: stroke; stroke: var(--bg); stroke-width: 3px; stroke-linejoin: round; }
+.fp-music-btn { cursor: pointer; }
+.fp-music-btn circle { fill: var(--surface-solid); stroke: #c9a2ff; stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.fp-music-btn text { fill: var(--ink); font-family: var(--f-mono); pointer-events: none; }
+.fp-music-btn:focus-visible { outline: none; }
+.fp-music-btn:focus-visible circle { stroke: var(--accent); stroke-width: 3px; }
+.fp-music-drag { stroke: #c9a2ff; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; pointer-events: none; }
+.np-extra:empty { display: none; }
 
 .view { transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), filter 0.5s ease; }
 

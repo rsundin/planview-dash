@@ -104,6 +104,18 @@ describe('card', () => {
     await close(page);
   });
 
+  test('a card for music opens the first floor plan with speakers, in the music view', async () => {
+    const page = await cardPage(env);
+    await page.evaluate(() => { window.harness.addCard({ site: 'example-house', view: 'music' }); });
+    const frame = await frameOf(page);
+    assert.equal(await view(frame), 'plan:house');
+    await frame.locator('.music-bar').waitFor();
+    assert.equal(await frame.locator('.music-toggle').getAttribute('aria-pressed'), 'true');
+    assert.ok(await frame.locator('.fp.is-active .fp-music-room').count() > 0);
+    check(page);
+    await close(page);
+  });
+
   test('a dashboard without an overview starts on its floor plan; a new config restarts in the same frame', async () => {
     const page = await cardPage(env);
     await page.evaluate(() => { window.harness.addCard({ site: 'example-apartment' }); });

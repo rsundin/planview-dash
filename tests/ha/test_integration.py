@@ -434,6 +434,29 @@ async def test_goodnight_turns_the_lights_off_after_the_countdown(hass: HomeAssi
     assert hass.states.get(SENSOR).state == STATE_UNKNOWN
 
 
+async def test_goodnight_pauses_music_and_turns_tvs_off(hass: HomeAssistant, entry) -> None:
+    """With media players (goodnight.media in site.json), speakers that play pause and TVs that are on turn off."""
+    from datetime import timedelta
+    import homeassistant.util.dt as dt_util
+    from pytest_homeassistant_custom_component.common import async_fire_time_changed, async_mock_service
+
+    pause = async_mock_service(hass, "media_player", "media_pause")
+    off = async_mock_service(hass, "media_player", "turn_off")
+    hass.states.async_set("media_player.kitchen", "playing", {"supported_features": 1 | 4})
+    hass.states.async_set("media_player.office", "idle", {"supported_features": 1})
+    hass.states.async_set("media_player.radio", "playing", {"supported_features": 16384})
+    hass.states.async_set("media_player.tv", "on", {"device_class": "tv", "supported_features": 256})
+    hass.states.async_set("media_player.old_tv", "off", {"device_class": "tv", "supported_features": 256})
+    await hass.services.async_call(DOMAIN, "goodnight", {
+        "site": "test_home", "minutes": 1,
+        "media_player": ["media_player.kitchen", "media_player.office", "media_player.radio", "media_player.tv", "media_player.old_tv", "media_player.gone"],
+    }, blocking=True)
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(minutes=1, seconds=1))
+    await hass.async_block_till_done()
+    assert [c.data["entity_id"] for c in pause] == [["media_player.kitchen"]]
+    assert [c.data["entity_id"] for c in off] == [["media_player.tv"]]
+
+
 async def test_goodnight_can_be_cancelled_and_restarted(hass: HomeAssistant, entry) -> None:
     from datetime import timedelta
     import homeassistant.util.dt as dt_util

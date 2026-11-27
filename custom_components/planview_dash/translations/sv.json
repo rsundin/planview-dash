@@ -64,6 +64,10 @@
           "name": "Kör sedan",
           "description": "Ett script som körs när lamporna släcks, till exempel för att låsa."
         },
+        "media_player": {
+          "name": "Musik och tv",
+          "description": "Högtalare som spelar pausas och tv-apparater stängs av när tiden är ute."
+        },
         "cancel": {
           "name": "Avbryt",
           "description": "Stoppa en nedräkning som pågår."

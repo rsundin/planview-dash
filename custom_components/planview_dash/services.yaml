@@ -24,6 +24,11 @@ goodnight:
       selector:
         entity:
           domain: script
+    media_player:
+      selector:
+        entity:
+          multiple: true
+          domain: media_player
     cancel:
       default: false
       selector:
